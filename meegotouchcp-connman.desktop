@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=DUIApplet
+Name=WifiApplet
+Icon=
+Exec=
+
+[DUI]
+X-DUIApplet-Applet=libwifiapplet.so
+X-DUIApplet-ImageLandscape=Widget_landscape_weather.png
+X-DUIApplet-ImagePortrait=Widget_portrait_weather.png
+
+[DCP]
+Category=Connectivity
+Order=4

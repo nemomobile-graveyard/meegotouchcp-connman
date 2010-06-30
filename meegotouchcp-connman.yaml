@@ -1,0 +1,71 @@
+Name: meegotouchcp-connman
+Summary: MeegoTouchControlPanel wifi Plugin
+Version: 0.0.10
+Release: 1
+Group: System/GUI/Other
+License: Apache License
+URL: http://www.meego.com
+Sources:
+    - "%{name}-%{version}.tar.bz2"
+Description: |
+    This is a plugin for meegotouch-controlpanel that does wifi
+    
+Requires: 
+    - connman
+    - meego-handset-cpwifi-branding
+PkgBR:
+    - doxygen
+PkgConfigBR:
+    - QtCore >= 4.6.0
+    - QtDBus
+    - QtOpenGL
+    - QtGui
+    - meegotouch
+    - meegotouch-controlpanel
+Configure: none
+Builder: make
+Files: 
+- "%{_libdir}/duicontrolpanel/meegotouchcp-connman.desktop"
+- "%{_libdir}/duicontrolpanel/applets/libwifiapplet.so"
+
+SubPackages:
+ - Name: libconnman-qt
+   Summary: A library for accessing some of connman's functionality through qt
+   Group: System/Libraries
+   Description: |    
+      This library is used by meegotouchcp-connman and others to work with connman
+   Files:
+     - "%{_libdir}/libconnman-qt.so.*"
+ - Name: libconnman-qt-devel
+   Summary: Development files for libconnman-qt
+   Group: Development/Libraries
+   Description: |
+    This package contains the files necessary to develop
+    applications using libconnman-qt
+   Files:
+    - "%{_usr}/include/manager.h"
+    - "%{_usr}/include/service.h"
+    - "%{_usr}/include/networkitemmodel.h"
+    - "%{_usr}/include/networklistmodel.h"
+    - "%{_usr}/include/commondbustypes.h"
+    - "%{_usr}/include/technologybutton.h"
+    - "%{_usr}/lib/pkgconfig/connman-qt.pc"
+    - "%{_usr}/lib/libconnman-qt.so"
+ - Name: branding-upsteam
+   Summary: MeeGo wifi controlpanel applet theme files
+   Description: Theme assets for the MeeGo wifi control panel applet
+   Group: System/GUI/Other
+   License: Restricted
+   Provides:
+      - meego-handset-cpwifi-branding
+   Files:
+     - "%{_datadir}/themes/base/meegotouch/duicontrolpanel/style/confirmremovepagestyle.css"
+     - "%{_datadir}/themes/base/meegotouch/duicontrolpanel/style/listpagestyle.css"
+     - "%{_datadir}/themes/base/meegotouch/duicontrolpanel/style/networkitemstyle.css"
+     - "%{_datadir}/themes/base/meegotouch/duicontrolpanel/style/passwordpagestyle.css"
+     - "%{_datadir}/themes/base/meegotouch/duicontrolpanel/style/mcp.css"
+     - "%{_datadir}/themes/base/meegotouch/duicontrolpanel/style/libwifi.css"
+     - "%{_datadir}/themes/base/meegotouch/duicontrolpanel/images/device-settings-bodytext-bg-dn.png"
+     - "%{_datadir}/themes/base/meegotouch/duicontrolpanel/images/device-settings-bodytext-bg.png"
+     - "%{_datadir}/themes/base/meegotouch/duicontrolpanel/images/device-settings-header-bg.png"
+     - "%{_datadir}/themes/base/meegotouch/libwifiapplet/libwifiapplet.conf"

@@ -1,0 +1,12 @@
+*.o
+moc_*
+*~
+Makefile
+meegotouchcp-connman-*.tar.bz2
+*.so*
+libconnman-qt/manager.cpp
+libconnman-qt/manager.h
+libconnman-qt/service.cpp
+libconnman-qt/service.h
+libconnman-qt/gen_*
+libwifiapplet/gen_*
