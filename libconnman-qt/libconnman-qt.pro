@@ -2,7 +2,7 @@
 
 load(meegotouch_defines)
 TEMPLATE = lib
-VERSION = 0.0.3
+VERSION = 0.0.4
 PKGCONFIG += meegotouch
 CONFIG += qt \
     meegotouch \
