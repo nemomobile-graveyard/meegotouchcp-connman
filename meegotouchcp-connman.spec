@@ -71,7 +71,7 @@ Theme assets for the MeeGo wifi control panel applet
 %build
 # >> build pre
 export PATH=$PATH:/usr/lib/qt4/bin
-qmake-qt4 install_prefix=/usr
+qmake install_prefix=/usr
 # << build pre
 
 
