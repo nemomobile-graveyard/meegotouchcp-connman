@@ -23,10 +23,12 @@ HEADERS += manager.h \
     networkitemmodel.h \
     networklistmodel.h \
     commondbustypes.h \
-    technologybutton.h 
+    technologybutton.h \
+    offlinebutton.h
 
 head.files = manager.h service.h networkitemmodel.h \ 
-             networklistmodel.h commondbustypes.h technologybutton.h
+	     networklistmodel.h commondbustypes.h technologybutton.h \
+	     offlinebutton.h
 head.path = /usr/include
 
 pkgconfig.files = connman-qt.pc
@@ -36,6 +38,7 @@ SOURCES += networkitemmodel.cpp \
            networklistmodel.cpp \
            technologybutton.cpp \
            manager.cpp \
-           service.cpp 
+	   service.cpp \
+	   offlinebutton.cpp
 
 INSTALLS += target head pkgconfig
