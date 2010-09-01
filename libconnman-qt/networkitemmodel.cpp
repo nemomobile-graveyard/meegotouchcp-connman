@@ -11,7 +11,6 @@
 #include "debug.h"
 #include "commondbustypes.h"
 
-//FIXME: could reuse these static strings for getProperties and popertyChanged
 const char* const NetworkItemModel::Name = "Name";
 const char* const NetworkItemModel::Security = "Security";
 const char* const NetworkItemModel::Strength = "Strength";
