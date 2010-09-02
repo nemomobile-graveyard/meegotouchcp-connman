@@ -359,6 +359,7 @@ void NetworkItemModel::_setNameservers(const QStringList &nameservers)
 void NetworkItemModel::_setDeviceAddress(const QString &deviceAddress)
 {
   if (deviceAddress != m_deviceAddress) {
+    MDEBUG("\tAddress = %s", STR(deviceAddress));
     m_deviceAddress = deviceAddress;
     memberModified(DeviceAddress);
   }
@@ -366,7 +367,9 @@ void NetworkItemModel::_setDeviceAddress(const QString &deviceAddress)
 
 void NetworkItemModel::_setDeviceAddress(const QVariantMap &ethernet)
 {
-  _setDeviceAddress(ethernet["Address"].toString());
+  if (ethernet.contains("Address")) {
+    _setDeviceAddress(ethernet["Address"].toString());
+  }
 }
 
 void NetworkItemModel::_setMode(const QString &mode)
@@ -452,7 +455,7 @@ void NetworkItemModel::propertyChanged(const QString &name,
       _setPassphrase(value.variant().toString());
     } else if (name == Strength) {
       _setStrength(value.variant().toInt());
-    } else if (name == IPv4) {
+    } else if (name == IPv4 || name == "IPv4") {
       _setIpv4(qdbus_cast<QVariantMap>(value.variant()));
     } else if (name == Nameservers) {
       _setNameservers(value.variant().toStringList());

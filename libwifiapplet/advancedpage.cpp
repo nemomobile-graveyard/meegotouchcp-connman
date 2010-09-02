@@ -79,62 +79,70 @@ void AdvancedPage::createContent()
   QRegExpValidator *rx = new QRegExpValidator(QRegExp("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"), this);
 
   MLabel *label;
+  int row = 0;
   label = new MLabel("Advanced Settings:");
   label->setObjectName("advancedSettingsPrompt");
-  m_gridPolicy->addItem(label, 0, 0);
+  m_gridPolicy->addItem(label, row, 0);
   m_linearPolicy->addItem(label);
+  row++;
 
   //connection method
   label = new MLabel("Connect by:");
   label->setObjectName("advancedSettingsModeLabel");
-  m_gridPolicy->addItem(label, 1, 0);
+  m_gridPolicy->addItem(label, row, 0);
   m_linearPolicy->addItem(label);
 
-  m_gridPolicy->addItem(m_combo, 1, 1);
+  m_gridPolicy->addItem(m_combo, row, 1);
   m_linearPolicy->addItem(m_combo);
+  row++;
 
   //ip address
-  m_gridPolicy->addItem(m_ipLabel, 2, 0);
+  m_gridPolicy->addItem(m_ipLabel, row, 0);
   m_linearPolicy->addItem(m_ipLabel);
 
   m_ipEdit->setValidator(rx);
-  m_gridPolicy->addItem(m_ipEdit, 2, 1);
+  m_gridPolicy->addItem(m_ipEdit, row, 1);
   m_linearPolicy->addItem(m_ipEdit);
+  row++;
 
   //subnet
-  m_gridPolicy->addItem(m_subnetLabel, 3, 0);
+  m_gridPolicy->addItem(m_subnetLabel, row, 0);
   m_linearPolicy->addItem(m_subnetLabel);
 
   m_subnetEdit->setValidator(rx); //FIXME: 123.123.123/24 and other notations
-  m_gridPolicy->addItem(m_subnetEdit, 3, 1);
+  m_gridPolicy->addItem(m_subnetEdit, row, 1);
   m_linearPolicy->addItem(m_subnetEdit);
+  row++;
 
   //router
-  m_gridPolicy->addItem(m_routerLabel, 4, 0);
+  m_gridPolicy->addItem(m_routerLabel, row, 0);
   m_linearPolicy->addItem(m_routerLabel);
 
   m_routerEdit->setValidator(rx);
-  m_gridPolicy->addItem(m_routerEdit, 4,1);
+  m_gridPolicy->addItem(m_routerEdit, row,1);
   m_linearPolicy->addItem(m_routerEdit);
+  row++;
 
   //dns
   label = new MLabel("DNS:");
   label->setObjectName("advancedSettingsDNSLabel");
-  m_gridPolicy->addItem(label, 5,0);
+  m_gridPolicy->addItem(label, row, 0);
   m_linearPolicy->addItem(label);
 
   //FIXME: validation
-  m_gridPolicy->addItem(m_dnsEdit, 5, 1);
+  m_gridPolicy->addItem(m_dnsEdit, row, 1);
   m_linearPolicy->addItem(m_dnsEdit);
+  row++;
 
   //MAC address
   label = new MLabel("Your Mac Address:");
   label->setObjectName("advancedSettingsMACLabel");
-  m_gridPolicy->addItem(label, 6, 0);
+  m_gridPolicy->addItem(label, row, 0);
   m_linearPolicy->addItem(label);
 
-  m_gridPolicy->addItem(m_MAC, 6, 1);
+  m_gridPolicy->addItem(m_MAC, row, 1);
   m_linearPolicy->addItem(m_MAC);
+  row++;
 
   MAction *action = new MAction("Apply", this);
   action->setLocation(MAction::ToolBarLocation);
@@ -183,8 +191,9 @@ void AdvancedPage::setIPV4(const NetworkItemModel::IPv4Type &ipv4)
 
 void AdvancedPage::setMAC(const QString &MAC)
 {
-  Q_ASSERT(m_MAC);
-  m_MAC->setText(MAC);
+  if (!MAC.isEmpty()) {
+    m_MAC->setText(MAC);
+  }
 }
 
 void AdvancedPage::setNetworkItemModel(NetworkItemModel *networkItemModel)
