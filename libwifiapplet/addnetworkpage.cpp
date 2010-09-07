@@ -93,6 +93,7 @@ void AddNetworkPage::createContent()
 			       QString());
   m_passwordEdit->setPrompt("Enter password here");
   m_passwordEdit->setObjectName("AddNetworkPasswordEdit");
+  m_passwordEdit->setEchoMode(MTextEditModel::Password);
   m_gridPolicy->addItem(m_passwordEdit, 3, 1);
   m_linearPolicy->addItem(m_passwordEdit);
   m_passwordEdit->hide();
