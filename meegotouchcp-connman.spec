@@ -127,6 +127,7 @@ export INSTALL_ROOT=%{buildroot}
 %{_usr}/include/networklistmodel.h
 %{_usr}/include/commondbustypes.h
 %{_usr}/include/technologybutton.h
+%{_usr}/include/offlinebutton.h
 %{_usr}/lib/pkgconfig/connman-qt.pc
 %{_usr}/lib/libconnman-qt.so
 # >> files libconnman-qt-devel
