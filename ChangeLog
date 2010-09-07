@@ -2,3 +2,8 @@ meegotouchcp-connman 0.0.11
 	added OfflineButton (BMC#5701)
 	update libconnman-qt version to 0.4
 	bring pkg-config version in conformance to .so version (whoops)
+
+meegotouchcp-connman 0.0.12
+	Fix for BMC#6013
+	Fix for BMC#6287
+	remove non applicable fixme
