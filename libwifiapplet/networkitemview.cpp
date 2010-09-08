@@ -189,14 +189,22 @@ void NetworkItemView::updateData(const QList<const char *> &modifications)
 
 const QString& NetworkItemView::prettyPrintState(const NetworkItemModel::StateType &state) const
 {
-  static const QString idle("Idle");
-  static const QString failure("Failure");
-  static const QString association("Associating");
-  static const QString configuration("Configuring");
-  static const QString ready("Connected");
-  static const QString login("Login");
-  static const QString online("Online");
-  static const QString disconnect("Disconnect");
+  //% "Idle"
+  static const QString idle(qtTrId("qtn_idle_pretty_print"));
+  //% "Failure"
+  static const QString failure(qtTrId("qtn_failure_pretty_print"));
+  //% "Associating"
+  static const QString association(qtTrId("qtn_associating_pretty_print"));
+  //% "Configuring"
+  static const QString configuration(qtTrId("qtn_configuring_pretty_print"));
+  //% "Connected"
+  static const QString ready(qtTrId("qtn_connected_pretty_print"));
+  //% "Login"
+  static const QString login(qtTrId("qtn_login_pretty_print"));
+  //% "Online"
+  static const QString online(qtTrId("qtn_online_pretty_print"));
+  //% "Disconnect"
+  static const QString disconnect(qtTrId("qtn_disconnected_pretty_print"));
 
   switch (state) {
   case NetworkItemModel::STATE_IDLE:
@@ -240,7 +248,8 @@ const QString& NetworkItemView::prettyPrintState(const NetworkItemModel::StateTy
 
 const QString& NetworkItemView::prettyPrintSecurity(const QString &security) const
 {
-  static const QString none("Open");
+  //% "Open"
+  static const QString none(qtTrId("qtn_open_pretty_print"));
 
   if (security == "none") {
     return none;
