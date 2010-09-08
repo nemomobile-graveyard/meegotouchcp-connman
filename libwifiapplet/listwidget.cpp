@@ -26,9 +26,12 @@ ListWidget::ListWidget(QGraphicsWidget *parent) :
   m_wifiSwitch(NULL), m_list(NULL),
   m_filter(NULL), m_buttonRow(NULL),
   m_timerId(0),
-  m_noNetworksString("There are no networks currently available"),
-  m_turnOnWifiString("To see wireless networks, turn on Wifi"),
-  m_wifiNotAvailableString("Wifi is not available on this device"),
+  //% "There are no networks currently available"
+  m_noNetworksString(qtTrId("qtn_no_networks")),
+  //% "To see wireless networks, turn on Wifi"
+  m_turnOnWifiString(qtTrId("qtn_turn_on_wifi")),
+  //% "Wifi is not available on this device"
+  m_wifiNotAvailableString(qtTrId("qtn_wifi_not_available")),
   m_wifiEnabled(false),
   m_wifiAvailable(false), m_noWifiInRange(false),
   m_addNetworkDialog(NULL),
@@ -84,7 +87,8 @@ void ListWidget::createContent()
     MLinearLayoutPolicy *buttonPolicy = new MLinearLayoutPolicy(rowLayout, Qt::Horizontal);
     buttonPolicy->setObjectName("buttonRowPolicy");
 
-    m_wifiLabel = new MLabel("WIFI STATUS", m_buttonRow);
+    //% "WIFI STATUS"
+    m_wifiLabel = new MLabel(qtTrId("qtn_wifi_label"), m_buttonRow);
     m_wifiSwitch = new TechnologyButton("wifi", m_networkListModel);
     buttonPolicy->addItem(m_wifiLabel, Qt::AlignLeft);
     buttonPolicy->addStretch();
@@ -289,8 +293,8 @@ void ListWidget::onVisibleChanged()
       item = item->parentItem();
     }
   if (page && !m_addNetworkAction) {
-
-    m_addNetworkAction = new MAction("Add New Network", this);
+    //% "Add New Network"
+    m_addNetworkAction = new MAction(qtTrId("qtn_add_network_action"), this);
     m_addNetworkAction->setLocation(MAction::ToolBarLocation);
     page->addAction(m_addNetworkAction);
 
