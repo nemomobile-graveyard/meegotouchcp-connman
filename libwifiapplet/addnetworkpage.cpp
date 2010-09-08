@@ -42,36 +42,42 @@ void AddNetworkPage::createContent()
     QGraphicsLinearLayout *headerLayout = new QGraphicsLinearLayout(Qt::Horizontal);
     m_header->setLayout(headerLayout);
 
-    MLabel *headerLabel = new MLabel("WIRELESS NETWORK DETAILS");
+    //% "WIRELESS NETWORK DETAILS"
+    MLabel *headerLabel = new MLabel(qtTrId("qtn_add_network_header"));
     headerLayout->addItem(headerLabel);
   }
   m_gridPolicy->addItem(m_header, 0, 0, 1, 2);
   m_linearPolicy->addItem(m_header);
 
 
-  //name
-  MLabel *label = new MLabel("Network:");
+  //% "Network:"
+  MLabel *label = new MLabel(qtTrId("qtn_add_network_label"));
   label->setObjectName("AddNetworkNetworkLabel");
   m_gridPolicy->addItem(label, 1, 0);
   m_linearPolicy->addItem(label);
 
   m_nameEdit = new MTextEdit(MTextEditModel::SingleLine,
 			       QString());
-  m_nameEdit->setPrompt("Enter network name here");
+  //% "Enter network name here"
+  m_nameEdit->setPrompt(qtTrId("qtn_enter_network_name"));
   m_nameEdit->setObjectName("AddNetworkNetworkNameEdit");
   m_gridPolicy->addItem(m_nameEdit, 1, 1);
   m_linearPolicy->addItem(m_nameEdit);
 
   //security type
-  label = new MLabel("Security:");
+  //% "Security:"
+  label = new MLabel(qtTrId("qtn_add_network_security_label"));
   label->setObjectName("AddNetworkSecurityLabel");
   m_gridPolicy->addItem(label, 2, 0);
   m_linearPolicy->addItem(label);
-
-  m_buttons.append(new TypeButton("none", "Open"));
+  
+  //% "Open"
+  m_buttons.append(new TypeButton("none", qtTrId("qtn_open")));
   m_buttons[0]->button->setChecked(true);
-  m_buttons.append(new TypeButton("wep", "WEP"));
-  m_buttons.append(new TypeButton("wpa", "WPA"));
+  //% "WEP"
+  m_buttons.append(new TypeButton("wep", qtTrId("qtn_wep")));
+  //% "WPA"
+  m_buttons.append(new TypeButton("wpa", qtTrId("qtn_wpa")));
 
   m_buttonGroup = new MButtonGroup();
   QGraphicsLinearLayout *buttonLayout = new QGraphicsLinearLayout(Qt::Horizontal);
@@ -84,26 +90,29 @@ void AddNetworkPage::createContent()
   m_linearPolicy->addItem(buttonLayout);
 
   //password entry
-  m_passwordLabel = new MLabel("Password:");
+  //% "Password:"
+  m_passwordLabel = new MLabel(qtTrId("qtn_add_network_password_label"));
   m_passwordLabel->setObjectName("AddNetworkPasswordLabel");
   m_gridPolicy->addItem(m_passwordLabel, 3, 0);
   m_linearPolicy->addItem(m_passwordLabel);
   m_passwordLabel->hide();
   m_passwordEdit = new MTextEdit(MTextEditModel::SingleLine,
 			       QString());
-  m_passwordEdit->setPrompt("Enter password here");
+  //% "Enter password here"
+  m_passwordEdit->setPrompt(qtTrId("qtn_add_network_password_edit"));
   m_passwordEdit->setObjectName("AddNetworkPasswordEdit");
   m_passwordEdit->setEchoMode(MTextEditModel::Password);
   m_gridPolicy->addItem(m_passwordEdit, 3, 1);
   m_linearPolicy->addItem(m_passwordEdit);
   m_passwordEdit->hide();
 
-  MAction *action = new MAction("Apply", this);
+  //% "Apply"
+  MAction *action = new MAction(qtTrId("qtn_add_network_apply_action"), this);
   action->setLocation(MAction::ToolBarLocation);
   addAction(action);
   connect(action, SIGNAL(triggered()), this, SLOT(applyTriggered()));
-
-  action = new MAction("Cancel", this);
+  //% "Cancel"
+  action = new MAction(qtTrId("qtn_add_network_cancel_action"), this);
   action->setLocation(MAction::ToolBarLocation);
   addAction(action);
   connect(action, SIGNAL(triggered()), this, SLOT(onBackButtonClicked()));
