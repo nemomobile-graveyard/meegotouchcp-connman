@@ -35,9 +35,12 @@ NetworkItem::NetworkItem(MWidget *parent)
   idCounter++;
   MDEBUG("there are %d instances of NetworkItem around", instances);
 
-  m_disconnectAction = new MAction("Disconnect", this);
-  m_removeAction = new MAction("Remove", this);
-  m_advancedAction = new MAction("Advanced", this);
+  //% "Disconnect"
+  m_disconnectAction = new MAction(qtTrId("qtn_network_item_disconnect_action"), this);
+  //% "Remove"
+  m_removeAction = new MAction(qtTrId("qtn_network_item_remove_action"), this);
+  //% "Advanced"
+  m_advancedAction = new MAction(qtTrId("qtn_network_item_advanced_action"), this);
 
   m_disconnectAction->setLocation(MAction::ObjectMenuLocation);
   m_removeAction->setLocation(MAction::ObjectMenuLocation);
@@ -158,7 +161,8 @@ void NetworkItem::removeTriggered()
 
     MWidget *centralWidget = new MWidget;
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical);
-    MLabel *label = new MLabel(QString("Do you want to remove the network %1?").arg(name()),
+    //% "Do you want to remove the network %1?"
+    MLabel *label = new MLabel(QString(qtTrId("qtn_network_item_remove_question_%1")).arg(name()),
 				   centralWidget);
     centralWidget->setLayout(layout);
 
@@ -166,7 +170,8 @@ void NetworkItem::removeTriggered()
 
     if (dialog != NULL)
       delete dialog;
-    dialog = new MDialog("Remove Device",
+    //% "Remove Device"
+    dialog = new MDialog(qtTrId("qtn_network_item_remove_dialog_title"),
 			   M::OkButton | M::CancelButton);
     dialog->setCentralWidget(centralWidget);
     if (dialog->exec() == MDialog::Accepted) {
@@ -182,7 +187,8 @@ void NetworkItem::connectTriggered()
 
     MWidget *centralWidget = new MWidget;
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical);
-    MLabel *label = new MLabel(QString("Enter network password for %1:").arg(name()),
+    //% "Enter network password for %1"
+    MLabel *label = new MLabel(QString(qtTrId("qtn_network_item_enter_network_password_%1")).arg(name()),
 				   centralWidget);
     MTextEdit *textEdit = new MTextEdit(MTextEditModel::SingleLine,
 					    QString(), centralWidget);
@@ -194,7 +200,8 @@ void NetworkItem::connectTriggered()
 
     if (dialog != NULL)
       delete dialog;
-    dialog = new MDialog(QString("%1 - %2").arg(name(), security()),
+    //% "%1 - %2"
+    dialog = new MDialog(QString(qtTrId("qtn_network_item_network_password_required_dialog_title_%1_%2")).arg(name(), security()),
 			   M::OkButton | M::CancelButton);
     dialog->setCentralWidget(centralWidget);
     if (dialog->exec() == MDialog::Accepted) {
