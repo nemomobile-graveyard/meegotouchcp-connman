@@ -28,10 +28,12 @@ AdvancedPage::AdvancedPage(QGraphicsWidget *parent) :
 
   MethodName methodName;
   methodName.connmanName = "dchp";
-  methodName.friendlyName = "dhcp";
+  //% "dhcp"
+  methodName.friendlyName = qtTrId("qtn_dhcp_friendly_name");
   m_methodNames.append(methodName);
   methodName.connmanName = "manual";
-  methodName.friendlyName = "static";
+  //% "static"
+  methodName.friendlyName = qtTrId("qtn_manual_friendly_name");
   m_methodNames.append(methodName);
 
   m_combo = new MComboBox();
@@ -41,22 +43,25 @@ AdvancedPage::AdvancedPage(QGraphicsWidget *parent) :
   }
   m_combo->setCurrentIndex(0); //dhcp
 
-  m_ipLabel = new MLabel("IP Address:");
+  //% "IP Address:"
+  m_ipLabel = new MLabel(qtTrId("qtn_advanced_settings_ip_label"));
   m_ipLabel->setObjectName("advancedSettingsIPLabel");
   m_ipEdit = new MTextEdit();
 
-
-  m_subnetLabel = new MLabel("Subnet Mask:");
+  //% "Subnet Mask:"
+  m_subnetLabel = new MLabel(qtTrId("qtn_advanced_settings_subnet_label"));
   m_subnetLabel->setObjectName("advancedSettingsSubnetLabel");
   m_subnetEdit = new MTextEdit();
 
-  m_routerLabel = new MLabel("Router:");
+  //% "Router:"
+  m_routerLabel = new MLabel(qtTrId("qtn_advanced_settings_router_label"));
   m_routerLabel->setObjectName("advancedSettingsRouterLabel");
   m_routerEdit = new MTextEdit();
 
   m_dnsEdit = new MTextEdit();
 
-  m_MAC = new MLabel("??:??:??:??:??:??:??:??");
+  //% "??:??:??:??:??:??:??:??"
+  m_MAC = new MLabel(qtTrId("qtn_advanced_settings_mac_value"));
   m_MAC->setObjectName("advancedSettingsMACValue");
 }
 
@@ -80,14 +85,16 @@ void AdvancedPage::createContent()
 
   MLabel *label;
   int row = 0;
-  label = new MLabel("Advanced Settings:");
+  //% "Advanced Settings:"
+  label = new MLabel(qtTrId("qtn_advanced_settings_prompt"));
   label->setObjectName("advancedSettingsPrompt");
   m_gridPolicy->addItem(label, row, 0);
   m_linearPolicy->addItem(label);
   row++;
 
   //connection method
-  label = new MLabel("Connect by:");
+  //% "Connect by:"
+  label = new MLabel(qtTrId("qtn_advanced_settings_mode_label"));
   label->setObjectName("advancedSettingsModeLabel");
   m_gridPolicy->addItem(label, row, 0);
   m_linearPolicy->addItem(label);
@@ -124,7 +131,8 @@ void AdvancedPage::createContent()
   row++;
 
   //dns
-  label = new MLabel("DNS:");
+  //% "DNS:"
+  label = new MLabel(qtTrId("qtn_advanced_settings_dns_label"));
   label->setObjectName("advancedSettingsDNSLabel");
   m_gridPolicy->addItem(label, row, 0);
   m_linearPolicy->addItem(label);
@@ -135,7 +143,8 @@ void AdvancedPage::createContent()
   row++;
 
   //MAC address
-  label = new MLabel("Your Mac Address:");
+  //% "Your Mac Address:"
+  label = new MLabel(qtTrId("qtn_advanced_settings_mac_label"));
   label->setObjectName("advancedSettingsMACLabel");
   m_gridPolicy->addItem(label, row, 0);
   m_linearPolicy->addItem(label);
@@ -144,7 +153,8 @@ void AdvancedPage::createContent()
   m_linearPolicy->addItem(m_MAC);
   row++;
 
-  MAction *action = new MAction("Apply", this);
+  //% "Apply"
+  MAction *action = new MAction(qtTrId("advanced_page_apply"), this);
   action->setLocation(MAction::ToolBarLocation);
   addAction(action);
 
