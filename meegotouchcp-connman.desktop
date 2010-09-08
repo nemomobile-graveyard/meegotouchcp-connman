@@ -3,6 +3,7 @@ Type=DUIApplet
 Name=WifiApplet
 Icon=
 Exec=
+X-translation-catalog = libwifiapplet.so
 
 [DUI]
 X-DUIApplet-Applet=libwifiapplet.so

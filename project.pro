@@ -2,7 +2,7 @@
 
 include (common.pri)
 TEMPLATE = subdirs
-SUBDIRS += libconnman-qt libwifiapplet 
+SUBDIRS += libconnman-qt libwifiapplet translations
 
 #FIXME: should not hardcode
 desktop_entry.path = /usr/lib/duicontrolpanel
