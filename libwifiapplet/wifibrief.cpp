@@ -20,7 +20,8 @@ WifiBrief::~WifiBrief()
 
 QString WifiBrief::titleText() const
 {
-  return "Wifi";
+  //% "Wifi"
+  return qtTrId("qtn_wifi_brief_title");
 }
 
 int WifiBrief::widgetTypeID() const
