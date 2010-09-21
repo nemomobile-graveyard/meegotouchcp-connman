@@ -10,29 +10,6 @@ DuiApplicationPageStyle {
     background-opacity: 1.0;
 }
 
-/* DuiApplicationPageStyle.Portrait { */
-/*     /\* effect *\/ */
-/*     background-image: ; */
-/*     background-color: #f6f6f6; */
-/*     background-opacity: 1.0; */
-/*     padding-left: 0; */
-/*     margin-left: 0; */
-/*     padding-right: 0; */
-/*     margin-right: 0; */
-/* } */
-
-/* DuiApplicationPageStyle.Landscape { */
-/*     /\* effect *\/ */
-/*     background-image: ; */
-/*     background-color: #f6f6f6; */
-/*     background-opacity: 1.0; */
-/*     padding-left: 0; */
-/*     margin-left: 0; */
-/*     padding-right: 0; */
-/*     margin-right: 0; */
-/* } */
-
-
 #advanceSettingsReadOnly {
   background-color: #CCCCCC;
 }
