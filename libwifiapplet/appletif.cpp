@@ -18,7 +18,6 @@
 
 void WifiApplet::init()
 {
-  MTheme::loadCSS(QString(CSSDIR) + "libwifi.css");
 }
 
 DcpWidget* WifiApplet::constructWidget(int widgetId)
