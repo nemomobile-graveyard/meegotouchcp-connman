@@ -145,6 +145,7 @@ export INSTALL_ROOT=%{buildroot}
 %{_datadir}/themes/base/meegotouch/duicontrolpanel/images/device-settings-bodytext-bg.png
 %{_datadir}/themes/base/meegotouch/duicontrolpanel/images/device-settings-header-bg.png
 %{_datadir}/themes/base/meegotouch/libwifiapplet/libwifiapplet.conf
+%{_datadir}/l10n//meegotouch/libwifiapplet.qm
 # >> files branding-upsteam
 # << files branding-upsteam
 
