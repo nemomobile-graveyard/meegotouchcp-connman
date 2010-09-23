@@ -139,11 +139,10 @@ export INSTALL_ROOT=%{buildroot}
 %{_datadir}/themes/base/meegotouch/duicontrolpanel/style/listpagestyle.css
 %{_datadir}/themes/base/meegotouch/duicontrolpanel/style/networkitemstyle.css
 %{_datadir}/themes/base/meegotouch/duicontrolpanel/style/passwordpagestyle.css
-%{_datadir}/themes/base/meegotouch/duicontrolpanel/style/mcp.css
-%{_datadir}/themes/base/meegotouch/duicontrolpanel/style/libwifi.css
-%{_datadir}/themes/base/meegotouch/duicontrolpanel/images/device-settings-bodytext-bg-dn.png
-%{_datadir}/themes/base/meegotouch/duicontrolpanel/images/device-settings-bodytext-bg.png
-%{_datadir}/themes/base/meegotouch/duicontrolpanel/images/device-settings-header-bg.png
+%{_datadir}/themes/base/meegotouch/duicontrolpanel/style/wifiapplet.css
+%{_datadir}/themes/base/meegotouch/settings/images/device-settings-bodytext-bg-dn.png
+%{_datadir}/themes/base/meegotouch/settings/images/device-settings-bodytext-bg.png
+%{_datadir}/themes/base/meegotouch/settings/images/device-settings-header-bg.png
 %{_datadir}/themes/base/meegotouch/libwifiapplet/libwifiapplet.conf
 %{_datadir}/l10n//meegotouch/libwifiapplet.qm
 # >> files branding-upsteam
