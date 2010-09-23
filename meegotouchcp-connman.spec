@@ -7,7 +7,7 @@
 
 Name:       meegotouchcp-connman
 Summary:    MeegoTouchControlPanel wifi Plugin
-Version:    0.0.12
+Version:    0.0.13
 Release:    1
 Group:      System/GUI/Other
 License:    Apache License

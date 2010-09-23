@@ -1,5 +1,5 @@
 #-*-Shell-Script-*-
-VERSION=0.0.12
+VERSION=0.0.13
 M_PREFIX= $$INSTALL_ROOT/usr
 M_INSTALL_DATA= $$M_PREFIX/share
 OBJECTS_DIR = .obj

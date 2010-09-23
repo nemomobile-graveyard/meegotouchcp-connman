@@ -7,3 +7,7 @@ meegotouchcp-connman 0.0.12
 	Fix for BMC#6013
 	Fix for BMC#6287
 	remove non applicable fixme
+
+meegotouchcp-connman 0.0.13
+	Fix for BMC#6074
+	
