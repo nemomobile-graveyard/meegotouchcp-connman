@@ -275,8 +275,11 @@ void NetworkListModel::propertyChanged(const QString &name,
    if (members.contains(NetworkItemModel::Type))
      {
        int row = m_networks.indexOf(static_cast<NetworkItemModel*>(sender()));
-       Q_ASSERT(row != -1);
-       emit dataChanged(createIndex(row, 0), createIndex(row, 1));
+       if (-1 == row) {
+	 qCritical() << "couldn't find the modified networkItemModel that was modified in the list";
+       } else {
+	 emit dataChanged(createIndex(row, 0), createIndex(row, 1));
+       }
      }
  }
 
