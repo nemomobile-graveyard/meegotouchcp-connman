@@ -97,8 +97,11 @@ void ListWidget::createContent()
   m_layout->addItem(m_buttonRow);
 
   m_noNetworksLabel= new MLabel(m_noNetworksString);
+  m_noNetworksLabel->setStyleName("CommonBodyTextInverted");
   m_turnOnWifiLabel = new MLabel(m_turnOnWifiString);
+  m_turnOnWifiLabel->setStyleName("CommonBodyTextInverted");
   m_wifiNotAvailableLabel = new MLabel(m_wifiNotAvailableString);
+  m_wifiNotAvailableLabel->setStyleName("CommonBodyTextInverted");
 
   m_list = new MList();
   m_list->setObjectName("list");
