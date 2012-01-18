@@ -116,9 +116,12 @@ void NetworkItem::setActionsByState(void)
     //TODO: captive portal for STATE_LOGIN
 
   default:
-    m_disconnectAction->setVisible(false);
-    m_removeAction->setVisible(false);
-    m_advancedAction->setVisible(false);
+    // NOTE. ALL actions are now possible at all times.
+    // Logic: let ConnMan handle the commands as it sees
+    // best in the different connection state scenarios.
+    m_disconnectAction->setVisible(true);
+    m_removeAction->setVisible(true);
+    m_advancedAction->setVisible(true);
     break;
   }
 }

@@ -32,8 +32,10 @@ public:
 
 public slots:
   QStringList nameservers() const;
-  void setNameservers(const QStringList &nameservers);
-  void setIPV4(const NetworkItemModel::IPv4Type &ipv4);
+  void setNameserversConfiguration(const QStringList &nameservers);
+  void setNameserversActive(const QStringList &nameservers);
+  void setIPV4Configuration(const NetworkItemModel::IPv4Type &ipv4);
+  void setIPV4Active(const NetworkItemModel::IPv4Type &ipv4);
   void setMAC(const QString &mac);
   void setNetworkItemModel(NetworkItemModel *networkItemModel);
 
@@ -50,9 +52,11 @@ private:
     QString friendlyName;
   };
 
-  void showRouter(const bool show);
-  void setIPEditable(const bool editable);
+  void setIpFieldsEditable(const bool editable);
+  void setDnsFieldEditable(const bool editable);
 
+  MLabel *m_configurationLabel;
+  MLabel *m_methodLabel;
   MComboBox *m_combo;
 
   MLabel *m_ipLabel;
@@ -61,13 +65,28 @@ private:
   MLabel *m_subnetLabel;
   MTextEdit *m_subnetEdit;
 
-  MLabel *m_routerLabel;
-  MTextEdit *m_routerEdit;
+  MLabel *m_gatewayLabel;
+  MTextEdit *m_gatewayEdit;
 
-
+  MLabel *m_dnsLabel;
   MTextEdit *m_dnsEdit;
   MLayout *m_layout;
-  MLabel *m_MAC;
+  MLabel *m_macLabel;
+  MLabel *m_macValue;
+
+  MLabel *m_activeSettingsLabel;
+  MLabel *m_activeMethodLabel;
+  MLabel *m_activeIpLabel;
+  MLabel *m_activeMaskLabel;
+  MLabel *m_activeGatewayLabel;
+  MLabel *m_activeDnsLabel;
+
+  MLabel *m_activeMethodValue;
+  MLabel *m_activeIpValue;
+  MLabel *m_activeMaskValue;
+  MLabel *m_activeGatewayValue;
+  MLabel *m_activeDnsValue;
+
   MGridLayoutPolicy *m_gridPolicy;
   MLinearLayoutPolicy *m_linearPolicy;
   QVector<MethodName> m_methodNames;

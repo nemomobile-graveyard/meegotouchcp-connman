@@ -57,7 +57,9 @@ class NetworkItemModel : public MWidgetModel
   static const char* const PassphraseRequired;
   static const char* const Passphrase;
   static const char* const IPv4;
+  static const char* const IPv4Configuration;
   static const char* const Nameservers;
+  static const char* const NameserversConfiguration;
   static const char* const DeviceAddress;
   static const char* const Mode;
 
@@ -70,8 +72,10 @@ class NetworkItemModel : public MWidgetModel
   Q_PROPERTY(QString mode READ mode);
   Q_PROPERTY(bool passphraseRequired READ passphraseRequired);
   Q_PROPERTY(QString passphrase READ passphrase WRITE setPassphrase);
-  Q_PROPERTY(IPv4Type ipv4 READ ipv4 WRITE setIpv4);
-  Q_PROPERTY(QStringList nameservers READ nameservers WRITE setNameservers);
+  Q_PROPERTY(IPv4Type ipv4Configuration READ ipv4Configuration WRITE setIpv4Configuration);
+  Q_PROPERTY(IPv4Type ipv4 READ ipv4);
+  Q_PROPERTY(QStringList nameserversConfiguration READ nameserversConfiguration WRITE setNameserversConfiguration);
+  Q_PROPERTY(QStringList nameservers READ nameservers);
   Q_PROPERTY(QString deviceAddress READ deviceAddress);
 
   /* property getters */
@@ -83,7 +87,9 @@ class NetworkItemModel : public MWidgetModel
   const bool& passphraseRequired() const;
   const QString &passphrase() const;
   // const QVariantMap &ipv4() const;
+  const IPv4Type &ipv4Configuration() const;
   const IPv4Type &ipv4() const;
+  const QStringList &nameserversConfiguration() const;
   const QStringList &nameservers() const;
   const QString &deviceAddress() const;
   const QString &mode() const;
@@ -92,8 +98,8 @@ class NetworkItemModel : public MWidgetModel
   //These actually set the property on the underlying service object.
   void setPassphrase(const QString &passphrase);
   void clearPassphrase();
-  void setIpv4(const IPv4Type &ipv4);
-  void setNameservers(const QStringList &nameservers);
+  void setIpv4Configuration(const IPv4Type &ipv4);
+  void setNameserversConfiguration(const QStringList &nameservers);
 
   /* debug */
   int id;
@@ -124,7 +130,9 @@ class NetworkItemModel : public MWidgetModel
   void _setType(const QString &type);
   void _setPassphrase(const QString &passphrase);
   void _setPassphraseRequired(const bool &passphraseRequired);
+  void _setIpv4Configuration(const QVariantMap& ipv4);
   void _setIpv4(const QVariantMap& ipv4);
+  void _setNameserversConfiguration(const QStringList &nameservers);
   void _setNameservers(const QStringList &nameservers);
   void _setDeviceAddress(const QString &deviceAddress);
   void _setDeviceAddress(const QVariantMap &ethernet);
@@ -145,7 +153,9 @@ class NetworkItemModel : public MWidgetModel
   QString m_type; /* should be enum ?? */
   bool m_passphraseRequired;
   QString m_passphrase;
+  IPv4Type m_ipv4Configuration;
   IPv4Type m_ipv4;
+  QStringList m_nameserversConfiguration;
   QStringList m_nameservers;
   QString m_deviceAddress;
   QString m_mode;

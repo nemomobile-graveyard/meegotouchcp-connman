@@ -18,8 +18,10 @@ const char* const NetworkItemModel::State = "State";
 const char* const NetworkItemModel::Type = "Type";
 const char* const NetworkItemModel::PassphraseRequired = "PassphraseRequired";
 const char* const NetworkItemModel::Passphrase = "Passphrase";
-const char* const NetworkItemModel::IPv4 = "IPv4.Configuration";
+const char* const NetworkItemModel::IPv4 = "IPv4";
+const char* const NetworkItemModel::IPv4Configuration = "IPv4.Configuration";
 const char* const NetworkItemModel::Nameservers = "Nameservers";
+const char* const NetworkItemModel::NameserversConfiguration = "Nameservers.Configuration";
 const char* const NetworkItemModel::DeviceAddress = "DeviceAddress";
 const char* const NetworkItemModel::Mode = "Mode";
 
@@ -50,6 +52,7 @@ NetworkItemModel::NetworkItemModel(const QString &path, QObject *parent) :
       MDEBUG("service %s is invalid!", STR(path));
       throw -1; //FIXME
     }
+    registerCommonDataTypes();
     QDBusPendingReply<QVariantMap> reply = m_service->GetProperties();
     m_getPropertiesWatcher = new QDBusPendingCallWatcher(reply, this);
     connect(m_getPropertiesWatcher,
@@ -142,6 +145,11 @@ const bool& NetworkItemModel::passphraseRequired() const
 const QString& NetworkItemModel::passphrase() const
 {
   return m_passphrase;
+}
+
+const NetworkItemModel::IPv4Type& NetworkItemModel::ipv4Configuration() const
+{
+  return m_ipv4Configuration;
 }
 
 const NetworkItemModel::IPv4Type& NetworkItemModel::ipv4() const
@@ -251,13 +259,16 @@ void NetworkItemModel::clearPassphrase()
   }
 }
 
-void NetworkItemModel::setIpv4(const IPv4Type &ipv4)
+void NetworkItemModel::setIpv4Configuration(const IPv4Type &ipv4)
 {
   Q_ASSERT(m_service);
 
-
   StringMap dict;
-  Q_ASSERT(!ipv4.Method.isEmpty());
+
+  // Rather than assert, handle the unspecified method case cracefully
+  if (ipv4.Method.isEmpty())
+    return;
+
   dict.insert("Method", ipv4.Method);
   if (ipv4.Method != "dhcp") {
     //FIXME: what do to if address and such are empty!?!
@@ -267,7 +278,7 @@ void NetworkItemModel::setIpv4(const IPv4Type &ipv4)
   }
   QVariant variant = qVariantFromValue(dict);
   QDBusPendingReply<void> reply =
-    m_service->SetProperty(QString(IPv4), QDBusVariant(variant));
+    m_service->SetProperty(QString(IPv4Configuration), QDBusVariant(variant));
   if (m_setPropertyWatcher) {
     delete m_setPropertyWatcher;
   }
@@ -284,6 +295,11 @@ const QString& NetworkItemModel::servicePath() const
   return m_servicePath;
 }
 
+const QStringList& NetworkItemModel::nameserversConfiguration() const
+{
+  return m_nameserversConfiguration;
+}
+
 const QStringList& NetworkItemModel::nameservers() const
 {
   return m_nameservers;
@@ -294,14 +310,14 @@ const QString& NetworkItemModel::deviceAddress() const
   return m_deviceAddress;
 }
 
-void NetworkItemModel::setNameservers(const QStringList &nameservers)
+void NetworkItemModel::setNameserversConfiguration(const QStringList &nameservers)
 {
   Q_ASSERT(m_service);
 
   if (!isListEqual(m_nameservers, nameservers)) {
     QVariant variant = qVariantFromValue(nameservers);
     QDBusPendingReply<void> reply =
-      m_service->SetProperty(Nameservers, QDBusVariant(variant));
+      m_service->SetProperty(NameserversConfiguration, QDBusVariant(variant));
       //I hate to wait here, but I'm not sure what else to do
       reply.waitForFinished();
       if (reply.isError()) {
@@ -340,6 +356,42 @@ void NetworkItemModel::_setState(const QString &state)
 
 //This sets the m_ipv4 with data.  It does not set the data on the
 //Service object
+void NetworkItemModel::_setIpv4Configuration(const QVariantMap &ipv4)
+{
+  bool modified = false;
+  QString string;
+
+  string = ipv4["Method"].toString();
+  MDEBUG("Method: %s", STR(string));
+  if (m_ipv4Configuration.Method != string) {
+    m_ipv4Configuration.Method = string;
+    modified = true;
+  }
+  string = ipv4["Address"].toString();
+  MDEBUG("Address: %s", STR(string));
+  if (m_ipv4Configuration.Address != string) {
+    m_ipv4Configuration.Address = string;
+    modified = true;
+  }
+  string =  ipv4["Netmask"].toString();
+  MDEBUG("Netmask: %s", STR(string));
+  if (m_ipv4Configuration.Netmask != string) {
+    m_ipv4Configuration.Netmask = string;
+    modified = true;
+  }
+  string = ipv4["Gateway"].toString();
+  MDEBUG("Gateway: %s", STR(string));
+  if (m_ipv4Configuration.Gateway != string) {
+    m_ipv4Configuration.Gateway = string;
+    modified = true;
+  }
+  if (modified) {
+    memberModified(IPv4Configuration);
+  }
+}
+
+//This sets the m_ipv4 with data.  It does not set the data on the
+//Service object
 void NetworkItemModel::_setIpv4(const QVariantMap &ipv4)
 {
   bool modified = false;
@@ -372,6 +424,13 @@ void NetworkItemModel::_setIpv4(const QVariantMap &ipv4)
   if (modified) {
     memberModified(IPv4);
   }
+}
+
+void NetworkItemModel::_setNameserversConfiguration(const QStringList &nameservers)
+{
+  MDEBUG("nameserversConfiguration: %s", STR(nameservers.join(", ")));
+  m_nameserversConfiguration = nameservers;
+  memberModified(NameserversConfiguration);
 }
 
 void NetworkItemModel::_setNameservers(const QStringList &nameservers)
@@ -447,10 +506,13 @@ void NetworkItemModel::getPropertiesReply(QDBusPendingCallWatcher *call)
   _setPassphrase(qdbus_cast<QString>(properties[Passphrase]));
   _setStrength(qdbus_cast<int>(properties[Strength]));
   _setState(qdbus_cast<QString>(properties[State]));
-  _setIpv4(qdbus_cast<QVariantMap>(properties["IPv4"]));
+  _setIpv4Configuration(qdbus_cast<QVariantMap>(properties[IPv4Configuration]));
+  _setIpv4(qdbus_cast<QVariantMap>(properties[IPv4]));
+  _setNameserversConfiguration(qdbus_cast<QStringList>(properties[NameserversConfiguration]));
   _setNameservers(qdbus_cast<QStringList>(properties[Nameservers]));
   _setDeviceAddress(qdbus_cast<QVariantMap>(properties["Ethernet"]));
   commitTransaction();
+
   connect(m_service,
 	  SIGNAL(PropertyChanged(const QString&,
 				 const QDBusVariant &)),
@@ -480,8 +542,12 @@ void NetworkItemModel::propertyChanged(const QString &name,
       _setPassphrase(value.variant().toString());
     } else if (name == Strength) {
       _setStrength(value.variant().toInt());
-    } else if (name == IPv4 || name == "IPv4") {
+    } else if (name == IPv4Configuration) {
+      _setIpv4Configuration(qdbus_cast<QVariantMap>(value.variant()));
+    } else if (name == IPv4) {
       _setIpv4(qdbus_cast<QVariantMap>(value.variant()));
+    } else if (name == NameserversConfiguration) {
+      _setNameserversConfiguration(value.variant().toStringList());
     } else if (name == Nameservers) {
       _setNameservers(value.variant().toStringList());
     } else if (name == "Ethernet") {
@@ -533,6 +599,10 @@ void NetworkItemModel::setPropertyFinished(QDBusPendingCallWatcher *call)
   if (reply.isError()) {
     MDEBUG("not continuing because of error in setProperty!");
   } else {
+    /* Disable (comment out) the reconnect behaviour (at least for now).
+       Logic: let ConnMan handle the property and related connection 
+       state changes as it sees fit.
+
     QDBusPendingReply<void> nextReply = m_service->Disconnect();
     if (m_setPropertyWatcher) {
       delete m_setPropertyWatcher;
@@ -542,6 +612,7 @@ void NetworkItemModel::setPropertyFinished(QDBusPendingCallWatcher *call)
 	    SIGNAL(finished(QDBusPendingCallWatcher*)),
 	    this,
 	    SLOT(disconnectFinished(QDBusPendingCallWatcher*)));
+    */
   }
 }
 

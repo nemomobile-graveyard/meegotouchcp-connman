@@ -27,42 +27,105 @@ AdvancedPage::AdvancedPage(QGraphicsWidget *parent) :
   setObjectName("advancedPage");
 
   MethodName methodName;
-  methodName.connmanName = "dchp";
+
+  methodName.connmanName = "";
+  //% "none"
+  methodName.friendlyName = qtTrId("qtn_none_friendly_name");
+  m_methodNames.append(methodName);
+
+  methodName.connmanName = "dhcp";
   //% "dhcp"
   methodName.friendlyName = qtTrId("qtn_dhcp_friendly_name");
   m_methodNames.append(methodName);
+
   methodName.connmanName = "manual";
-  //% "static"
+  //% "manual"
   methodName.friendlyName = qtTrId("qtn_manual_friendly_name");
   m_methodNames.append(methodName);
 
+  QString text = "<b>";
+  //% "Configuration"
+  text += qtTrId("qtn_advanced_settings_prompt");
+  text += "<b>";
+  m_configurationLabel = new MLabel(text);
+  m_configurationLabel->setObjectName("advancedSettingsPrompt");
+
+  //% "Connect by:"
+  m_methodLabel = new MLabel(qtTrId("qtn_advanced_settings_connectby_label"));
+  m_methodLabel->setObjectName("advancedSettingsMethodLabel");
+
   m_combo = new MComboBox();
-  m_combo->setObjectName("advancedSettingsModeCombo");
+  //% "Method"
+  m_combo->setTitle(qtTrId("qtn_advanced_settings_method_label"));
+  m_combo->setObjectName("advancedSettingsMethodCombo");
   for (int i= 0; i < m_methodNames.count(); i++) {
     m_combo->insertItem(i, m_methodNames[i].friendlyName);
   }
-  m_combo->setCurrentIndex(0); //dhcp
-
-  //% "IP Address:"
+  m_combo->setCurrentIndex(0); //none
+  
+  //% "IP address:"
   m_ipLabel = new MLabel(qtTrId("qtn_advanced_settings_ip_label"));
   m_ipLabel->setObjectName("advancedSettingsIPLabel");
   m_ipEdit = new MTextEdit();
 
-  //% "Subnet Mask:"
+  //% "Subnet mask:"
   m_subnetLabel = new MLabel(qtTrId("qtn_advanced_settings_subnet_label"));
   m_subnetLabel->setObjectName("advancedSettingsSubnetLabel");
   m_subnetEdit = new MTextEdit();
 
-  //% "Router:"
-  m_routerLabel = new MLabel(qtTrId("qtn_advanced_settings_router_label"));
-  m_routerLabel->setObjectName("advancedSettingsRouterLabel");
-  m_routerEdit = new MTextEdit();
+  //% "Gateway:"
+  m_gatewayLabel = new MLabel(qtTrId("qtn_advanced_settings_gateway_label"));
+  m_gatewayLabel->setObjectName("advancedSettingsGatewayLabel");
+  m_gatewayEdit = new MTextEdit();
 
+  //% "DNS:"
+  m_dnsLabel = new MLabel(qtTrId("qtn_advanced_settings_dns_label"));
+  m_dnsLabel->setObjectName("advancedSettingsDNSLabel");
   m_dnsEdit = new MTextEdit();
 
+  //% "MAC address:"
+  m_macLabel = new MLabel(qtTrId("qtn_advanced_settings_mac_label"));
+  m_macLabel->setObjectName("advancedSettingsMACLabel");
   //% "??:??:??:??:??:??:??:??"
-  m_MAC = new MLabel(qtTrId("qtn_advanced_settings_mac_value"));
-  m_MAC->setObjectName("advancedSettingsMACValue");
+  m_macValue = new MLabel(qtTrId("qtn_advanced_settings_mac_value"));
+  m_macValue->setObjectName("advancedSettingsMACValue");
+
+  text = "<b>";
+  //% "Active Settings"
+  text += qtTrId("qtn_advanced_settings_active_settings_label");
+  text += "</b>";
+  m_activeSettingsLabel = new MLabel(text);
+  m_activeSettingsLabel->setObjectName("advancedSettingsActiveSettingsLabel");
+
+  m_activeMethodLabel = new MLabel(qtTrId("qtn_advanced_settings_connectby_label"));
+  m_activeMethodLabel->setObjectName("advancedSettingsActiveMethodLabel");
+
+  m_activeMethodValue = new MLabel();
+  m_activeMethodValue->setObjectName("advancedSettingsActiveMethodValue");
+
+  m_activeIpLabel = new MLabel(qtTrId("qtn_advanced_settings_ip_label"));
+  m_activeIpLabel->setObjectName("advancedSettingsActiveIpLabel");
+
+  m_activeIpValue = new MLabel();
+  m_activeIpValue->setObjectName("advancedSettingsActiveIpValue");
+
+  m_activeMaskLabel = new MLabel(qtTrId("qtn_advanced_settings_subnet_label"));
+  m_activeMaskLabel->setObjectName("advancedSettingsActiveMaskLabel");
+
+  m_activeMaskValue = new MLabel();
+  m_activeMaskValue->setObjectName("advancedSettingsActiveMaskValue");
+
+  m_activeGatewayLabel = new MLabel(qtTrId("qtn_advanced_settings_gateway_label"));
+  m_activeGatewayLabel->setObjectName("advancedSettingsActiveGatewayLabel");
+
+  m_activeGatewayValue = new MLabel();
+  m_activeGatewayValue->setObjectName("advancedSettingsActiveGatewayValue");
+
+  m_activeDnsLabel = new MLabel(qtTrId("qtn_advanced_settings_dns_label"));
+  m_activeDnsLabel->setObjectName("advancedSettingsActiveDnsLabel");
+
+  m_activeDnsValue = new MLabel();
+  m_activeDnsValue->setObjectName("advancedSettingsActiveDnsValue");
 }
 
 AdvancedPage::~AdvancedPage()
@@ -83,27 +146,21 @@ void AdvancedPage::createContent()
   //FIXME: 666.666.666.666
   QRegExpValidator *rx = new QRegExpValidator(QRegExp("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"), this);
 
-  MLabel *label;
   int row = 0;
-  //% "Advanced Settings:"
-  label = new MLabel(qtTrId("qtn_advanced_settings_prompt"));
-  label->setObjectName("advancedSettingsPrompt");
-  m_gridPolicy->addItem(label, row, 0);
-  m_linearPolicy->addItem(label);
+
+  m_gridPolicy->addItem(m_configurationLabel, row, 0);
+  m_linearPolicy->addItem(m_configurationLabel);
   row++;
 
-  //connection method
-  //% "Connect by:"
-  label = new MLabel(qtTrId("qtn_advanced_settings_mode_label"));
-  label->setObjectName("advancedSettingsModeLabel");
-  m_gridPolicy->addItem(label, row, 0);
-  m_linearPolicy->addItem(label);
+  // Method
+  m_gridPolicy->addItem(m_methodLabel, row, 0);
+  m_linearPolicy->addItem(m_methodLabel);
 
   m_gridPolicy->addItem(m_combo, row, 1);
   m_linearPolicy->addItem(m_combo);
   row++;
 
-  //ip address
+  // IP address
   m_gridPolicy->addItem(m_ipLabel, row, 0);
   m_linearPolicy->addItem(m_ipLabel);
 
@@ -112,7 +169,7 @@ void AdvancedPage::createContent()
   m_linearPolicy->addItem(m_ipEdit);
   row++;
 
-  //subnet
+  // Netmask
   m_gridPolicy->addItem(m_subnetLabel, row, 0);
   m_linearPolicy->addItem(m_subnetLabel);
 
@@ -121,36 +178,70 @@ void AdvancedPage::createContent()
   m_linearPolicy->addItem(m_subnetEdit);
   row++;
 
-  //router
-  m_gridPolicy->addItem(m_routerLabel, row, 0);
-  m_linearPolicy->addItem(m_routerLabel);
+  // Gateway
+  m_gridPolicy->addItem(m_gatewayLabel, row, 0);
+  m_linearPolicy->addItem(m_gatewayLabel);
 
-  m_routerEdit->setValidator(rx);
-  m_gridPolicy->addItem(m_routerEdit, row,1);
-  m_linearPolicy->addItem(m_routerEdit);
+  m_gatewayEdit->setValidator(rx);
+  m_gridPolicy->addItem(m_gatewayEdit, row,1);
+  m_linearPolicy->addItem(m_gatewayEdit);
   row++;
 
-  //dns
-  //% "DNS:"
-  label = new MLabel(qtTrId("qtn_advanced_settings_dns_label"));
-  label->setObjectName("advancedSettingsDNSLabel");
-  m_gridPolicy->addItem(label, row, 0);
-  m_linearPolicy->addItem(label);
+  // DNS
+  m_gridPolicy->addItem(m_dnsLabel, row, 0);
+  m_linearPolicy->addItem(m_dnsLabel);
 
   //FIXME: validation
   m_gridPolicy->addItem(m_dnsEdit, row, 1);
   m_linearPolicy->addItem(m_dnsEdit);
   row++;
 
-  //MAC address
-  //% "Your Mac Address:"
-  label = new MLabel(qtTrId("qtn_advanced_settings_mac_label"));
-  label->setObjectName("advancedSettingsMACLabel");
-  m_gridPolicy->addItem(label, row, 0);
-  m_linearPolicy->addItem(label);
+  // Active settings
+  m_gridPolicy->addItem(m_activeSettingsLabel, row, 0);
+  m_linearPolicy->addItem(m_activeSettingsLabel);
+  row++;
 
-  m_gridPolicy->addItem(m_MAC, row, 1);
-  m_linearPolicy->addItem(m_MAC);
+  // Method
+  m_gridPolicy->addItem(m_activeMethodLabel, row, 0);
+  m_linearPolicy->addItem(m_activeMethodLabel);
+  m_gridPolicy->addItem(m_activeMethodValue, row, 1);
+  m_linearPolicy->addItem(m_activeMethodValue);
+  row++;
+
+  // Address
+  m_gridPolicy->addItem(m_activeIpLabel, row, 0);
+  m_linearPolicy->addItem(m_activeIpLabel);
+  m_gridPolicy->addItem(m_activeIpValue, row, 1);
+  m_linearPolicy->addItem(m_activeIpValue);
+  row++;
+
+  // Mask
+  m_gridPolicy->addItem(m_activeMaskLabel, row, 0);
+  m_linearPolicy->addItem(m_activeMaskLabel);
+  m_gridPolicy->addItem(m_activeMaskValue, row, 1);
+  m_linearPolicy->addItem(m_activeMaskValue);
+  row++;
+
+  // Gateway
+  m_gridPolicy->addItem(m_activeGatewayLabel, row, 0);
+  m_linearPolicy->addItem(m_activeGatewayLabel);
+  m_gridPolicy->addItem(m_activeGatewayValue, row, 1);
+  m_linearPolicy->addItem(m_activeGatewayValue);
+  row++;
+
+  // DNS
+  m_gridPolicy->addItem(m_activeDnsLabel, row, 0);
+  m_linearPolicy->addItem(m_activeDnsLabel);
+  m_gridPolicy->addItem(m_activeDnsValue, row, 1);
+  m_linearPolicy->addItem(m_activeDnsValue);
+  row++;
+
+  // MAC
+  m_gridPolicy->addItem(m_macLabel, row, 0);
+  m_linearPolicy->addItem(m_macLabel);
+
+  m_gridPolicy->addItem(m_macValue, row, 1);
+  m_linearPolicy->addItem(m_macValue);
   row++;
 
   //% "Apply"
@@ -171,24 +262,27 @@ QStringList AdvancedPage::nameservers() const
   return list;
 }
 
-void AdvancedPage::setNameservers(const QStringList &nameservers)
+void AdvancedPage::setNameserversConfiguration(const QStringList &nameservers)
 {
   Q_ASSERT(m_dnsEdit);
   m_dnsEdit->setText(nameservers.join(", "));
 }
+void AdvancedPage::setNameserversActive(const QStringList &nameservers)
+{
+  Q_ASSERT(m_activeDnsValue);
+  m_activeDnsValue->setText(nameservers.join(", "));
+}
 
-
-void AdvancedPage::setIPV4(const NetworkItemModel::IPv4Type &ipv4)
+void AdvancedPage::setIPV4Configuration(const NetworkItemModel::IPv4Type &ipv4)
 {
   Q_ASSERT(m_combo);
   Q_ASSERT(m_ipEdit);
   Q_ASSERT(m_subnetEdit);
-  Q_ASSERT(m_routerEdit);
-
+  Q_ASSERT(m_gatewayEdit);
 
   m_ipEdit->setText(ipv4.Address);
   m_subnetEdit->setText(ipv4.Netmask);
-  m_routerEdit->setText(ipv4.Gateway);
+  m_gatewayEdit->setText(ipv4.Gateway);
 
   MDEBUG("ipv4.Method: %s", STR(ipv4.Method));
   for (int i= 0; i < m_methodNames.count(); i++) {
@@ -199,10 +293,23 @@ void AdvancedPage::setIPV4(const NetworkItemModel::IPv4Type &ipv4)
   }
 }
 
+void AdvancedPage::setIPV4Active(const NetworkItemModel::IPv4Type &ipv4)
+{
+  Q_ASSERT(m_activeMethodValue);
+  Q_ASSERT(m_activeIpValue);
+  Q_ASSERT(m_activeMaskValue);
+  Q_ASSERT(m_activeGatewayValue);
+
+  m_activeMethodValue->setText(ipv4.Method);
+  m_activeIpValue->setText(ipv4.Address);
+  m_activeMaskValue->setText(ipv4.Netmask);
+  m_activeGatewayValue->setText(ipv4.Gateway);
+}
+
 void AdvancedPage::setMAC(const QString &MAC)
 {
   if (!MAC.isEmpty()) {
-    m_MAC->setText(MAC);
+    m_macValue->setText(MAC);
   }
 }
 
@@ -215,30 +322,34 @@ void AdvancedPage::setNetworkItemModel(NetworkItemModel *networkItemModel)
   }
   m_NIModel = networkItemModel;
   m_NIModel->increaseReferenceCount();
-  setIPV4(m_NIModel->ipv4());
-  setNameservers(m_NIModel->nameservers());
+  setIPV4Configuration(m_NIModel->ipv4Configuration());
+  setIPV4Active(m_NIModel->ipv4());
+  setNameserversConfiguration(m_NIModel->nameserversConfiguration());
+  setNameserversActive(m_NIModel->nameservers());
   setMAC(m_NIModel->deviceAddress());
   connect(m_NIModel, SIGNAL(modified(const QList<const char*>&)),
 	  this, SLOT(modified(const QList<const char*>&)));
 }
 
-
 void AdvancedPage::onBackButtonClicked()
 {
-  MDEBUG("backButtonClicked");
   dismiss();
 }
 
 void AdvancedPage::comboIndexChanged(int index)
 {
-  if (!index) {
-    setIPEditable(false);
-    showRouter(false);
-  } else {
-    setIPEditable(true);
-    showRouter(true);
+  // 0 = none, 1 = dhcp, 2 = manual
+  if (index == 0) {
+    setIpFieldsEditable(false);
+    setDnsFieldEditable(false);
   }
-
+  else if (index == 1) {
+    setIpFieldsEditable(false);
+    setDnsFieldEditable(true);
+  } else {
+    setIpFieldsEditable(true);
+    setDnsFieldEditable(true);
+  }
 }
 
 void AdvancedPage::applyTriggered()
@@ -248,34 +359,44 @@ void AdvancedPage::applyTriggered()
     ipv4.Method = m_methodNames[m_combo->currentIndex()].connmanName;
     ipv4.Address = m_ipEdit->text();
     ipv4.Netmask = m_subnetEdit->text();
-    ipv4.Gateway = m_routerEdit->text();
+    ipv4.Gateway = m_gatewayEdit->text();
 
-    m_NIModel->setIpv4(ipv4);
-    //m_NIModel->setNameservers(nameservers());
+    m_NIModel->setIpv4Configuration(ipv4);
+    m_NIModel->setNameserversConfiguration(nameservers());
   }
   dismiss();
 }
 
 void AdvancedPage::modified(const QList<const char *>& members)
 {
+  if (members.contains(NetworkItemModel::IPv4Configuration)) {
+    setIPV4Configuration(m_NIModel->ipv4Configuration());
+  } 
   if (members.contains(NetworkItemModel::IPv4)) {
-    setIPV4(m_NIModel->ipv4());
-  } if (members.contains(NetworkItemModel::Nameservers)) {
-    setNameservers(m_NIModel->nameservers());
-  } if (members.contains(NetworkItemModel::DeviceAddress)) {
+    setIPV4Active(m_NIModel->ipv4());
+  }
+  if (members.contains(NetworkItemModel::NameserversConfiguration)) {
+    setNameserversConfiguration(m_NIModel->nameservers());
+  } 
+  if (members.contains(NetworkItemModel::Nameservers)) {
+    setNameserversActive(m_NIModel->nameservers());
+  } 
+  if (members.contains(NetworkItemModel::DeviceAddress)) {
     setMAC(m_NIModel->deviceAddress());
   }
 
 }
 
-void AdvancedPage::showRouter(const bool show)
+void AdvancedPage::setIpFieldsEditable(const bool editable)
 {
-  m_routerLabel->setVisible(show);
-  m_routerEdit->setVisible(show);
+  m_ipEdit->setEnabled(editable);
+  m_subnetEdit->setEnabled(editable);
+  m_gatewayLabel->setEnabled(editable);
+  m_gatewayEdit->setEnabled(editable);
 }
 
-void AdvancedPage::setIPEditable(const bool editable)
+void AdvancedPage::setDnsFieldEditable(const bool editable)
 {
-  m_ipEdit->setReadOnly(!editable);
-  m_subnetEdit->setReadOnly(!editable);
+  m_dnsEdit->setEnabled(editable);
 }
+
