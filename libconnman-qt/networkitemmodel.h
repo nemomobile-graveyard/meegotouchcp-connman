@@ -167,7 +167,6 @@ class NetworkItemModel : public MWidgetModel
   void getPropertiesReply(QDBusPendingCallWatcher *call);
   void propertyChanged(const QString &name,
 		       const QDBusVariant &value);
-  void onDisconnectComplete(QDBusPendingCallWatcher *call);
   void delayedConnectService();
   //These are all due to MBC#1070
   void setPropertyFinished(QDBusPendingCallWatcher *call);
