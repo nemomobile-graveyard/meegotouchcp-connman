@@ -61,12 +61,6 @@ NetworkItemModel::NetworkItemModel(const QString &path, QObject *parent) :
 	    SLOT(getPropertiesReply(QDBusPendingCallWatcher*)));
   }
 
-  // To clear passphrase on failed connection attempts
-  connect(this,
-          SIGNAL(modified(const QList<const char *>)),
-          this,
-          SLOT(onMemberModified(const QList<const char *>)));
-
   //this is an attempt to avoid having lots of networks show in the
   //list with no type.  The thought process is that the filter is
   //matching on empty strings.  It doesn't appear to work in the
@@ -114,7 +108,16 @@ void NetworkItemModel::delayedConnectService()
 
 void NetworkItemModel::doConnectService()
 {
-  QDBusPendingReply<void> reply = m_service->Connect();
+  // Not using m_service->Connect because of the need 
+  // to have an extended timeout in the connect call
+  QDBusMessage connectCall = QDBusMessage::createMethodCall(m_service->service(), 
+							    m_service->path(),
+							    m_service->staticInterfaceName(), 
+							    QLatin1String("Connect"));
+  // Timeout: 3 min = 180000 ms
+  // (in one test, a failed connection attempt seemed to
+  // take 2 mins, so using a timeout longer than that)
+  QDBusPendingReply<void> reply = m_service->connection().asyncCall(connectCall, 180000);
   if (m_connectWatcher) {
     delete m_connectWatcher;
   }
@@ -590,25 +593,6 @@ void NetworkItemModel::propertyChanged(const QString &name,
     }
 }
 
-void NetworkItemModel::onMemberModified(const QList<const char *> &members)
-{
-  MDEBUG("onMemberModified");
-  QString s;
-  foreach(s, members)
-  {
-    // If state has changed into failure, clear the passphrase from ConnMan    
-    // (to make it so that it is asked again in the next connection attempt)      
-    if (s == State) {
-      MDEBUG("State has changed");
-      if (state() == STATE_FAILURE) {
-	MDEBUG("State has changed into failure");
-	clearPassphrase();
-      }
-      break;
-    }
-  }
-}
-
 void NetworkItemModel::timerEvent(QTimerEvent *event)
 {
   Q_UNUSED(event);
@@ -644,6 +628,8 @@ void NetworkItemModel::connectFinished(QDBusPendingCallWatcher *call)
   QDBusPendingReply<void> reply = *call;
   if (reply.isError()) {
     MDEBUG("error calling connect!");
+    // Clear the passphrase in case of a failed connect attempt
+    clearPassphrase();
   } else {
     MDEBUG("connect finished without error");
   }
