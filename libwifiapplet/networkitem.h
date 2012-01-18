@@ -52,6 +52,7 @@ protected Q_SLOTS:
 private Q_SLOTS:
   void removeTriggered();
   void connectTriggered();
+  void clearPassphraseTriggered();
   void advancedTriggered();
 
 private:
@@ -61,6 +62,7 @@ private:
   void connectActionSignals(void);
   MAction *m_disconnectAction;
   MAction *m_removeAction;
+  MAction *m_clearPassphraseAction;
   MAction *m_advancedAction;
   static MDialog *dialog;
 
@@ -80,5 +82,35 @@ class NetworkItemCellCreator : public MAbstractCellCreator<NetworkItem>
   void updateCell(const QModelIndex& index, MWidget * cell) const;
 };
 
+#include <MSheet>
+
+class MTextEdit;
+class MMessageBox;
+
+class NetworkItemModel;
+class NetworkListModel;
+
+class LoginSheet : public MSheet
+{
+  Q_OBJECT
+
+public:
+  LoginSheet(QString const &title, 
+	     NetworkItemModel* itemModel, 
+	     NetworkListModel* listModel);
+
+private Q_SLOTS:
+  void ok();
+  void cancel();
+  void setfocusOnPasswordTextEdit();
+
+private:
+  void createCentralWidget(QString const &title);
+  void createHeaderWidget();
+  QGraphicsWidget *createSpacer() const;
+  MTextEdit *m_passwordTextEdit;
+  NetworkItemModel* m_itemModel;
+  NetworkListModel* m_listModel;
+};
 
 #endif //NETWORK_ITEM_H

@@ -20,6 +20,8 @@
 #include <MTextEdit>
 #include <QGraphicsLinearLayout>
 
+#include <MBasicSheetHeader>
+#include <QAction>
 
 const MTheme::ViewType NetworkItem::defaultType = "";
 
@@ -40,15 +42,19 @@ NetworkItem::NetworkItem(MWidget *parent)
   m_disconnectAction = new MAction(qtTrId("qtn_network_item_disconnect_action"), this);
   //% "Remove"
   m_removeAction = new MAction(qtTrId("qtn_network_item_remove_action"), this);
+  //% "Clear password"
+  m_clearPassphraseAction = new MAction(qtTrId("qtn_network_item_clear_password_action"), this);
   //% "Advanced"
   m_advancedAction = new MAction(qtTrId("qtn_network_item_advanced_action"), this);
 
   m_disconnectAction->setLocation(MAction::ObjectMenuLocation);
   m_removeAction->setLocation(MAction::ObjectMenuLocation);
+  m_clearPassphraseAction->setLocation(MAction::ObjectMenuLocation);
   m_advancedAction->setLocation(MAction::ObjectMenuLocation);
 
   addAction(m_disconnectAction);
   addAction(m_removeAction);
+  addAction(m_clearPassphraseAction);
   addAction(m_advancedAction);
 
   setActionsByState();
@@ -111,6 +117,7 @@ void NetworkItem::setActionsByState(void)
     MDEBUG("setActionsByState:visible!");
     m_disconnectAction->setVisible(true);
     m_removeAction->setVisible(true);
+    m_clearPassphraseAction->setVisible(true);
     m_advancedAction->setVisible(true);
     break;
 
@@ -122,6 +129,7 @@ void NetworkItem::setActionsByState(void)
     // best in the different connection state scenarios.
     m_disconnectAction->setVisible(true);
     m_removeAction->setVisible(true);
+    m_clearPassphraseAction->setVisible(true);
     m_advancedAction->setVisible(true);
     break;
   }
@@ -133,6 +141,8 @@ void NetworkItem::connectActionSignals(void)
 	  model(), SLOT(disconnectService()));
   connect(m_removeAction, SIGNAL(triggered(bool)),
 	  this, SLOT(removeTriggered()));
+  connect(m_clearPassphraseAction, SIGNAL(triggered(bool)),
+	  this, SLOT(clearPassphraseTriggered()));
   connect(m_advancedAction, SIGNAL(triggered(bool)),
 	  this, SLOT(advancedTriggered()));
 }
@@ -154,6 +164,7 @@ void NetworkItem::setupModel()
 
   m_disconnectAction->disconnect(SIGNAL(triggered(bool)));
   m_removeAction->disconnect(SIGNAL(triggered(bool)));
+  m_clearPassphraseAction->disconnect(SIGNAL(triggered(bool)));
   m_advancedAction->disconnect(SIGNAL(triggered(bool)));
   setActionsByState();
   connectActionSignals();
@@ -185,6 +196,11 @@ void NetworkItem::removeTriggered()
     }
 }
 
+void NetworkItem::clearPassphraseTriggered()
+{
+  model()->clearPassphrase();
+}
+
 void NetworkItem::connectTriggered()
 {
   MDEBUG("connectTriggered on %s", STR(name()));
@@ -194,32 +210,12 @@ void NetworkItem::connectTriggered()
   
   if (model()->passphraseRequired()) {
     MDEBUG("password path");
-
-    MWidget *centralWidget = new MWidget;
-    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical);
-    //% "Enter network password for %1"
-    MLabel *label = new MLabel(QString(qtTrId("qtn_network_item_enter_network_password_%1")).arg(name()),
-				   centralWidget);
-    label->setStyleName("CommonBodyTextInverted");
-    label->setWordWrap(true);
-    MTextEdit *textEdit = new MTextEdit(MTextEditModel::SingleLine,
-					    QString(), centralWidget);
-    textEdit->setEchoMode(MTextEditModel::Password);
-    centralWidget->setLayout(layout);
-
-    layout->addItem(label);
-    layout->addItem(textEdit);
-
-    if (dialog != NULL)
-      delete dialog;
-    //% "%1 - %2"
-    dialog = new MDialog(QString(qtTrId("qtn_network_item_network_password_required_dialog_title_%1_%2")).arg(name(), security()),
-			   M::OkButton | M::CancelButton);
-    dialog->setCentralWidget(centralWidget);
-    if (dialog->exec() == MDialog::Accepted) {
-      model()->setPassphrase(textEdit->text());
-      model()->connectService(listWidget->networkListModel());
-    }
+    //% "Password for %1 (%2)"
+    LoginSheet *loginSheet = 
+      new LoginSheet(QString(qtTrId("qtn_network_item_enter_network_password_%1_%2")).arg(name(), security()),
+		     model(), listWidget->networkListModel());
+    loginSheet->setObjectName("loginSheet");
+    loginSheet->appear(scene(), MSceneWindow::DestroyWhenDone);
   } else {
     MDEBUG("no pasword path");
     model()->connectService(listWidget->networkListModel());
@@ -258,6 +254,71 @@ void NetworkItemCellCreator::updateCell(const QModelIndex& index,
     Q_ASSERT(pNIM);
     card->setModel(pNIM);
   } while (0);
+}
+
+LoginSheet::LoginSheet(QString const &title, 
+		       NetworkItemModel* itemModel, 
+		       NetworkListModel* listModel) :
+  m_itemModel(itemModel), 
+  m_listModel(listModel)
+{
+  createCentralWidget(title);
+  createHeaderWidget();
+
+  connect(this, SIGNAL(appeared()), SLOT(setfocusOnPasswordTextEdit()));
+}
+
+void LoginSheet::createCentralWidget(QString const &title)
+{
+  QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical,
+                                                                  centralWidget());
+  mainLayout->setContentsMargins(0,0,0,0);
+  mainLayout->setSpacing(0);
+
+  MLabel *label = new MLabel(title);
+  label->setObjectName("PasswordLabel");
+  mainLayout->addItem(label);
+
+  m_passwordTextEdit = new MTextEdit;
+  m_passwordTextEdit->setObjectName("passwordTextEdit");
+  m_passwordTextEdit->setEchoMode(MTextEditModel::Password);
+  mainLayout->addItem(m_passwordTextEdit);
+
+  mainLayout->addStretch();
+}
+
+void LoginSheet::createHeaderWidget()
+{
+  MBasicSheetHeader *basicHeader = new MBasicSheetHeader(this);
+  basicHeader->setObjectName("basicSheetHeader");
+
+  //% "Cancel"
+  basicHeader->setNegativeAction(new QAction(qtTrId("qtn_cancel"), basicHeader));
+  //% "OK"
+  basicHeader->setPositiveAction(new QAction(qtTrId("qtn_ok"), basicHeader));
+
+  connect(basicHeader->negativeAction(), SIGNAL(triggered()), SLOT(cancel()));
+  connect(basicHeader->positiveAction(), SIGNAL(triggered()), SLOT(ok()));
+
+  setHeaderWidget(basicHeader);
+}
+
+void LoginSheet::setfocusOnPasswordTextEdit()
+{
+  m_passwordTextEdit->setFocus();
+}
+
+void LoginSheet::ok()
+{
+  m_itemModel->setPassphrase(m_passwordTextEdit->text());
+  m_itemModel->connectService(m_listModel);
+
+  dismiss();
+}
+
+void LoginSheet::cancel()
+{
+  dismiss();
 }
 
 M_REGISTER_WIDGET(NetworkItem);
