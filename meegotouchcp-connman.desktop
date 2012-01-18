@@ -1,9 +1,11 @@
 [Desktop Entry]
 Type=DUIApplet
 Name=WifiApplet
-Icon=
-Exec=
 X-translation-catalog = libwifiapplet
+X-Maemo-Service=com.nokia.DuiControlPanel
+X-Maemo-Method=com.nokia.DuiControlPanelIf.appletPage
+X-Maemo-Object-Path=/
+X-Maemo-Fixed-Args=WifiApplet
 
 [DUI]
 X-DUIApplet-Applet=libwifiapplet.so
@@ -11,5 +13,5 @@ X-DUIApplet-ImageLandscape=Widget_landscape_weather.png
 X-DUIApplet-ImagePortrait=Widget_portrait_weather.png
 
 [DCP]
-Category=Connectivity
+Category=Connections
 Order=4
