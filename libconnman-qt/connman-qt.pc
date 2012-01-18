@@ -1,11 +1,11 @@
 prefix=/usr
 exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
-includedir=${prefix}/include
+libdir=${exec_prefix}/lib/meegotouchcp-connman-qt
+includedir=${prefix}/include/meegotouchcp-connman-qt
 
-Name: connman-qt
-Description:  Some connman functionality exposed through Qt.  Not a general purpose connman library
+Name: libmeegotouchcp-connman-qt
+Description: Some connman functionality exposed through Qt.  Not a general purpose connman library
 Version: 0.0.4
 Requires: QtDBus meegotouch
 Cflags: -I${includedir}
-Libs: -L${libdir} -lconnman-qt
+Libs: -L${libdir} -lmeegotouchcp-connman-qt

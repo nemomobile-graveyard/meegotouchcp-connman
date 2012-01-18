@@ -9,7 +9,7 @@ CONFIG += qt \
     duicontrolpanel \
     plugin \
     debug
-LIBS += -L ../libconnman-qt -lconnman-qt
+LIBS += -L ../libconnman-qt -lmeegotouchcp-connman-qt
 INCLUDEPATH += ../libconnman-qt
 include(theme/theme.pri)
 

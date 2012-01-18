@@ -8,7 +8,7 @@ CONFIG += qt \
     meegotouch \
     debug
 QT += dbus
-TARGET = $$qtLibraryTarget(connman-qt)
+TARGET = $$qtLibraryTarget(meegotouchcp-connman-qt)
 target.path = /usr/lib
 !exists(manager.h) {
   system(qdbusxml2cpp -c Manager -p manager -N connman-manager.xml)
