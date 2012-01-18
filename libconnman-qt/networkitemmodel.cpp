@@ -38,7 +38,7 @@ NetworkItemModel::NetworkItemModel(const QString &path, QObject *parent) :
   m_strength(0),
   m_passphraseRequired(false)
 {
-  setParent(parent);
+  //setParent(parent);
   instances++;
   idCounter++;
   m_servicePath = path;
