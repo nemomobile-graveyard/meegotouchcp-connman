@@ -164,6 +164,8 @@ void NetworkItem::removeTriggered()
     //% "Do you want to remove the network %1?"
     MLabel *label = new MLabel(QString(qtTrId("qtn_network_item_remove_question_%1")).arg(name()),
 				   centralWidget);
+    label->setStyleName("CommonBodyTextInverted");
+    label->setWordWrap(true);
     centralWidget->setLayout(layout);
 
     layout->addItem(label);
@@ -190,6 +192,8 @@ void NetworkItem::connectTriggered()
     //% "Enter network password for %1"
     MLabel *label = new MLabel(QString(qtTrId("qtn_network_item_enter_network_password_%1")).arg(name()),
 				   centralWidget);
+    label->setStyleName("CommonBodyTextInverted");
+    label->setWordWrap(true);
     MTextEdit *textEdit = new MTextEdit(MTextEditModel::SingleLine,
 					    QString(), centralWidget);
     textEdit->setEchoMode(MTextEditModel::Password);
