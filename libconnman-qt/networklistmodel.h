@@ -16,6 +16,9 @@
 #include <QAbstractTableModel>
 #include <QtDBus>
 
+static const QString EnabledTechnologies("EnabledTechnologies");
+static const QString AllTechnologies("");
+
 class NetworkListModel : public QAbstractTableModel
 {
   Q_OBJECT;
@@ -39,6 +42,11 @@ public:
   const QStringList enabledTechnologies() const;
   const QStringList connectedTechnologies() const;
 
+  bool disconnectConnectedNetwork();
+  void beginChange();
+  void endChange();
+  void emitStatusChangeTrigger(bool on);
+
 public slots:
   void requestScan();
   bool offlineMode() const;
@@ -49,10 +57,12 @@ public slots:
 signals:
   void technologiesChanged(const QStringList &availableTechnologies,
 			   const QStringList &enabledTechnologies,
-			   const QStringList &connectedTechnologies);
+			   const QStringList &connectedTechnologies, 
+			   const QString &whatChanged);
   void offlineModeChanged(bool offlineMode);
   void defaultTechnologyChanged(const QString &defaultTechnology);
   void stateChanged(const QString &state);
+  void statusChangeTrigger(bool on);
 
 protected:
   void timerEvent(QTimerEvent *event); //hack
@@ -63,8 +73,11 @@ private:
   void connectToConnman();
   void disconnectFromConnman();
   int findNetworkItemModel(const QDBusObjectPath &path) const;
-  void emitTechnologiesChanged();
+  void emitTechnologiesChanged(const QString &whatChanged);
+  NetworkItemModel* findConnectedNetwork();
+  void switchPropertyObserving(bool on);
 
+  QString m_technologyToDisable;
   Manager *m_manager;
   QDBusPendingCallWatcher *m_getPropertiesWatcher;
   QDBusPendingCallWatcher *m_connectServiceWatcher;
@@ -84,6 +97,7 @@ private slots:
   void propertyChanged(const QString &name,
 		       const QDBusVariant &value);
   void networkItemModified(const QList<const char *> &members);
+  void delayedDisableTechnology();
 
 private:
   Q_DISABLE_COPY(NetworkListModel);

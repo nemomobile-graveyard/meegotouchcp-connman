@@ -10,6 +10,7 @@
 #include "networkitemmodel.h"
 #include "debug.h"
 #include "commondbustypes.h"
+#include "networklistmodel.h"
 
 const char* const NetworkItemModel::Name = "Name";
 const char* const NetworkItemModel::Security = "Security";
@@ -34,7 +35,6 @@ NetworkItemModel::NetworkItemModel(const QString &path, QObject *parent) :
   m_service(NULL),
   m_getPropertiesWatcher(NULL),
   m_setPropertyWatcher(NULL),
-  m_disconnectWatcher(NULL),
   m_connectWatcher(NULL),
   m_state(STATE_NONE),
   m_strength(0),
@@ -81,15 +81,48 @@ NetworkItemModel::~NetworkItemModel()
   MDEBUG("destructing instance %d.  There are %d models around", id, instances);
 }
 
-
-void NetworkItemModel::connectService()
+void NetworkItemModel::connectService(NetworkListModel* networkListModel)
 {
-#ifdef PRETEND
-  MDEBUG("connectService pretending");
-#else
-  MDEBUG("connectService FOR REAL");
-  m_service->Connect();
-#endif
+  m_networkListModel = networkListModel;
+
+  // To avoid problems (memory management issues) on ConnMan side, we first 
+  // disconnect a possible already connected network and only then connect
+  // the requested network (this)
+
+  // Property change observing on the list model must be turned off in order 
+  // to prevent _this_ object from being deleted in the list model's property 
+  // change observer (this object must be around until the connect service 
+  // call is really over)
+  m_networkListModel->beginChange();
+
+  bool disconnected = m_networkListModel->disconnectConnectedNetwork();
+  if (disconnected) {
+    // If a network was disconnected, wait a while before connecting a new one
+    // (an attempt to prevent problems/crashes on ConnMan side)
+    QTimer::singleShot(5000, this, SLOT(delayedConnectService()));
+  }
+  else {
+    // No network was disconnected, so connect this network immediately
+    doConnectService();
+  }
+}
+
+void NetworkItemModel::delayedConnectService()
+{
+  doConnectService();
+}
+
+void NetworkItemModel::doConnectService()
+{
+  QDBusPendingReply<void> reply = m_service->Connect();
+  if (m_connectWatcher) {
+    delete m_connectWatcher;
+  }
+  m_connectWatcher = new QDBusPendingCallWatcher(reply, this);
+  connect(m_connectWatcher,
+	  SIGNAL(finished(QDBusPendingCallWatcher*)),
+	  this,
+	  SLOT(connectFinished(QDBusPendingCallWatcher*)));
 }
 
 void NetworkItemModel::disconnectService()
@@ -599,38 +632,10 @@ void NetworkItemModel::setPropertyFinished(QDBusPendingCallWatcher *call)
   if (reply.isError()) {
     MDEBUG("not continuing because of error in setProperty!");
   } else {
-    /* Disable (comment out) the reconnect behaviour (at least for now).
-       Logic: let ConnMan handle the property and related connection 
-       state changes as it sees fit.
-
-    QDBusPendingReply<void> nextReply = m_service->Disconnect();
-    if (m_setPropertyWatcher) {
-      delete m_setPropertyWatcher;
-    }
-    m_setPropertyWatcher = new QDBusPendingCallWatcher(nextReply, this);
-    connect(m_setPropertyWatcher,
-	    SIGNAL(finished(QDBusPendingCallWatcher*)),
-	    this,
-	    SLOT(disconnectFinished(QDBusPendingCallWatcher*)));
+    /* 
+    Reconnect behaviour removed from here. Logic: let ConnMan handle 
+    the property and related connection state changes as it sees fit.
     */
-  }
-}
-
-void NetworkItemModel::disconnectFinished(QDBusPendingCallWatcher *call)
-{
-  QDBusPendingReply<void> reply = *call;
-  if (reply.isError()) {
-    MDEBUG("not continuing because of error in disconnect!");
-  } else {
-    QDBusPendingReply<void> nextReply = m_service->Connect();
-    if (m_setPropertyWatcher) {
-      delete m_setPropertyWatcher;
-    }
-    m_disconnectWatcher = new QDBusPendingCallWatcher(nextReply, this);
-    connect(m_disconnectWatcher,
-	    SIGNAL(finished(QDBusPendingCallWatcher*)),
-	    this,
-	    SLOT(connectFinished(QDBusPendingCallWatcher*)));
   }
 }
 
@@ -642,5 +647,10 @@ void NetworkItemModel::connectFinished(QDBusPendingCallWatcher *call)
   } else {
     MDEBUG("connect finished without error");
   }
+  // The (disconnect and) connect request is complete,
+  // so turn on state change observing on the list model 
+  // side (including allowing the deletion of item
+  // model objects)
+  m_networkListModel->endChange();
 }
 

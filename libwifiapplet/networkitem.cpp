@@ -11,6 +11,7 @@
 #include "networkitemmodel.h"
 #include "debug.h"
 #include "advancedpage.h"
+#include "listwidget.h"
 
 #include <MWidgetCreator>
 #include <MWidgetView>
@@ -187,6 +188,10 @@ void NetworkItem::removeTriggered()
 void NetworkItem::connectTriggered()
 {
   MDEBUG("connectTriggered on %s", STR(name()));
+
+  // Used to allow the network item model access the network list model
+  ListWidget* listWidget = static_cast<ListWidget*>(parentItem()->parentItem());
+  
   if (model()->passphraseRequired()) {
     MDEBUG("password path");
 
@@ -213,11 +218,11 @@ void NetworkItem::connectTriggered()
     dialog->setCentralWidget(centralWidget);
     if (dialog->exec() == MDialog::Accepted) {
       model()->setPassphrase(textEdit->text());
-      model()->connectService();
+      model()->connectService(listWidget->networkListModel());
     }
   } else {
     MDEBUG("no pasword path");
-    model()->connectService();
+    model()->connectService(listWidget->networkListModel());
   }
 }
 

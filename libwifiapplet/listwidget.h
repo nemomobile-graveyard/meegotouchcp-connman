@@ -22,6 +22,8 @@
 #include <QGraphicsLinearLayout>
 #include <MAction>
 
+#define DEFAULT_SCAN_INTERVAL 60 // seconds
+
 class ListWidget : public DcpStylableWidget
 {
   Q_OBJECT;
@@ -31,6 +33,7 @@ public:
   virtual ~ListWidget();
   bool pagePans() const; //FIXME: is this Pure Virtual?
   bool back();
+  NetworkListModel* networkListModel();
 
 protected:
   void timerEvent(QTimerEvent *event);
@@ -70,8 +73,11 @@ private:
   int m_secondsBetweenScans;
   MAction* m_addNetworkAction;
 
+public slots:
+  void onStatusChangeTrigger(bool on);
+
 private slots:
-  void startScanning(const int seconds = 60); //FIXME: swag
+  void startScanning(const int seconds = DEFAULT_SCAN_INTERVAL); //FIXME: swag
   void stopScanning(void);
   void addNetworkClicked(void);
   void onVisibleChanged();
@@ -82,7 +88,8 @@ private slots:
   void onWifiToggled(bool checked);
   void onTechnologiesChanged(const QStringList &availableTechnologies,
 			     const QStringList &enabledTechnologies,
-			     const QStringList &connectedTechnologies);
+			     const QStringList &connectedTechnologies,
+			     const QString &whatChanged);
 };
 
 #endif //LISTWIDGET_H

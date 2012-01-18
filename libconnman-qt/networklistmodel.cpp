@@ -11,7 +11,7 @@
 #include "debug.h"
 
 const QString NetworkListModel::availTechs("AvailableTechnologies");
-const QString NetworkListModel::enablTechs("EnabledTechnologies");
+const QString NetworkListModel::enablTechs(EnabledTechnologies);
 const QString NetworkListModel::connTechs("ConnectedTechnologies");
 const QString NetworkListModel::OfflineMode("OfflineMode");
 const QString NetworkListModel::DefaultTechnology("DefaultTechnology");
@@ -98,9 +98,69 @@ void NetworkListModel::enableTechnology(const QString &technology)
   m_manager->EnableTechnology(technology);
 }
 
+NetworkItemModel* NetworkListModel::findConnectedNetwork()
+{
+  NetworkItemModel *pConnectedNetwork = NULL;
+
+  foreach(NetworkItemModel *pNIM, m_networks) {
+    switch (pNIM->state()) {
+      case NetworkItemModel::STATE_READY:
+      case NetworkItemModel::STATE_ONLINE:
+      case NetworkItemModel::STATE_CONFIGURATION:
+      case NetworkItemModel::STATE_ASSOCIATION:
+	pConnectedNetwork = pNIM;
+	break;
+      default:
+        break;
+    }
+    if (pConnectedNetwork) {
+      break;
+    }
+  }
+
+  return pConnectedNetwork;
+}
+
+bool NetworkListModel::disconnectConnectedNetwork()
+{
+  NetworkItemModel *pConnectedNetwork = findConnectedNetwork();
+  if (pConnectedNetwork) {
+    pConnectedNetwork->disconnectService();  
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
 void NetworkListModel::disableTechnology(const QString &technology)
 {
-  m_manager->DisableTechnology(technology);
+  // Disconnecting possibly connected network(s) before the making the
+  // disable technology call in order to avoid problems on ConnMan side 
+  // (crashes because of memory management issues)
+
+  // First, find out which network is connected
+  NetworkItemModel *pConnectedNetwork = findConnectedNetwork();
+
+  // If no network is connected, just disable the technology straight away
+  if (!pConnectedNetwork) {
+      m_manager->DisableTechnology(technology);
+    }
+  // Otherwise disconnect the network first, and only after giving some 
+  // time for that action to complete, disable the technology 
+  else {
+      pConnectedNetwork->disconnectService();
+      m_technologyToDisable = technology;
+      QTimer::singleShot(5000, this, SLOT(delayedDisableTechnology()));
+    }
+}
+
+void NetworkListModel::delayedDisableTechnology()
+{
+  if (!m_technologyToDisable.isEmpty()) {
+    m_manager->DisableTechnology(m_technologyToDisable);
+  }
+  m_technologyToDisable = "";
 }
 
 void NetworkListModel::connectService(const QString &name, const QString &security,
@@ -203,11 +263,8 @@ void NetworkListModel::getPropertiesReply(QDBusPendingCallWatcher *call)
       m_networks.append(pNIM);
     }
     endInsertRows();
-    connect(m_manager,
-	    SIGNAL(PropertyChanged(const QString&, const QDBusVariant&)),
-	    this,
-	    SLOT(propertyChanged(const QString&, const QDBusVariant&)));
-    emitTechnologiesChanged();
+    switchPropertyObserving(true);
+    emitTechnologiesChanged(AllTechnologies);
     emit defaultTechnologyChanged(m_propertiesCache[DefaultTechnology].toString());
     emit stateChanged(m_propertiesCache[State].toString());
   }
@@ -237,7 +294,7 @@ void NetworkListModel::propertyChanged(const QString &name,
   if (name == NetworkListModel::availTechs ||
       name == NetworkListModel::enablTechs ||
       name == NetworkListModel::connTechs) {
-    emitTechnologiesChanged();
+    emitTechnologiesChanged(name);
   } else if (name == DefaultTechnology) {
     emit defaultTechnologyChanged(m_propertiesCache[DefaultTechnology].toString());
   } else if (name == State) {
@@ -291,7 +348,7 @@ int NetworkListModel::findNetworkItemModel(const QDBusObjectPath &path) const
   return -1;
 }
 
- void NetworkListModel::emitTechnologiesChanged()
+void NetworkListModel::emitTechnologiesChanged(const QString &whatChanged)
  {
    const QStringList availableTechnologies = qdbus_cast<QStringList>
      (m_propertiesCache[NetworkListModel::availTechs]);
@@ -304,7 +361,8 @@ int NetworkListModel::findNetworkItemModel(const QDBusObjectPath &path) const
    qDebug() << connTechs << ": " << m_propertiesCache[NetworkListModel::connTechs];
    emit technologiesChanged(availableTechnologies,
 			    enabledTechnologies,
-			    connectedTechnologies);
+			    connectedTechnologies, 
+			    whatChanged);
  }
 
 
@@ -355,4 +413,37 @@ QString NetworkListModel::defaultTechnology() const
 QString NetworkListModel::state() const
 {
   return m_propertiesCache[State].toString();
+}
+
+void NetworkListModel::beginChange() 
+{
+  emit statusChangeTrigger(true);
+  switchPropertyObserving(false);
+}
+
+void NetworkListModel::endChange()
+{
+  emit statusChangeTrigger(false);
+  switchPropertyObserving(true);
+}
+
+void NetworkListModel::emitStatusChangeTrigger(bool on)
+{
+  emit statusChangeTrigger(on);
+}
+
+void NetworkListModel::switchPropertyObserving(bool on)
+{
+  if (on) {
+    connect(m_manager,
+	    SIGNAL(PropertyChanged(const QString&, const QDBusVariant&)),
+	    this,
+	    SLOT(propertyChanged(const QString&, const QDBusVariant&)));
+  }
+  else {
+    disconnect(m_manager,
+	       SIGNAL(PropertyChanged(const QString&, const QDBusVariant&)),
+	       this,
+	       SLOT(propertyChanged(const QString&, const QDBusVariant&)));
+  }
 }

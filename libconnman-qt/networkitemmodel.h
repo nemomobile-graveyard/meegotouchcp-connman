@@ -17,6 +17,7 @@
 
 //#define PRETEND 1
 
+class NetworkListModel;
 
 class NetworkItemModel : public MWidgetModel
 {
@@ -111,7 +112,7 @@ class NetworkItemModel : public MWidgetModel
   const QString& servicePath() const;
 
  public slots:
-  void connectService();
+  void connectService(NetworkListModel* networkListModel);
   void disconnectService();
   void removeService();
 
@@ -143,7 +144,6 @@ class NetworkItemModel : public MWidgetModel
   Service *m_service;
   QDBusPendingCallWatcher *m_getPropertiesWatcher;
   QDBusPendingCallWatcher *m_setPropertyWatcher;
-  QDBusPendingCallWatcher *m_disconnectWatcher;
   QDBusPendingCallWatcher *m_connectWatcher;
 
   QString m_name;
@@ -159,15 +159,19 @@ class NetworkItemModel : public MWidgetModel
   QStringList m_nameservers;
   QString m_deviceAddress;
   QString m_mode;
+  NetworkListModel* m_networkListModel;
 
-private slots:
+  void doConnectService();
+
+ private slots:
   void getPropertiesReply(QDBusPendingCallWatcher *call);
   void propertyChanged(const QString &name,
 		       const QDBusVariant &value);
   void onMemberModified(const QList<const char *> &members);
+  void onDisconnectComplete(QDBusPendingCallWatcher *call);
+  void delayedConnectService();
   //These are all due to MBC#1070
   void setPropertyFinished(QDBusPendingCallWatcher *call);
-  void disconnectFinished(QDBusPendingCallWatcher *call);
   void connectFinished(QDBusPendingCallWatcher *call);
 };
 

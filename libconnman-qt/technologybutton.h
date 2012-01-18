@@ -26,13 +26,17 @@ public:
 private slots:
   void technologiesChanged(const QStringList &availableTechnologies,
 			   const QStringList &enabledTechnologies,
-			   const QStringList &connectedTechnologies);
+			   const QStringList &connectedTechnologies,
+			   const QString &whatChanged);
   void toggledSlot(bool checked);
+  void switchButtonObserving(bool on);
+  void delayedShowButton();
 
 private:
   TechnologyButton();
   QString m_technology;
   NetworkListModel *m_model;
+  bool m_enableOrDisableOngoing;
 };
 
 

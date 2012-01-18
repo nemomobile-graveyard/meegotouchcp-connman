@@ -38,7 +38,7 @@ ListWidget::ListWidget(QGraphicsWidget *parent) :
   m_wifiEnabled(false),
   m_wifiAvailable(false), m_noWifiInRange(false),
   m_addNetworkDialog(NULL),
-  m_secondsBetweenScans(60),
+  m_secondsBetweenScans(DEFAULT_SCAN_INTERVAL),
   m_addNetworkAction(NULL)
 {
   MDEBUG("%s", __FUNCTION__);
@@ -65,6 +65,11 @@ bool ListWidget::back()
 {
   stopScanning();
   return DcpStylableWidget::back(); //for now
+}
+
+NetworkListModel* ListWidget::networkListModel() 
+{
+  return m_networkListModel;
 }
 
 void ListWidget::createContent()
@@ -111,26 +116,44 @@ void ListWidget::createContent()
   m_list->setViewType("fast");
   m_list->setItemModel(m_filter);
   m_list->setCellCreator(new NetworkItemCellCreator());
+
   m_wifiAvailable = m_networkListModel->availableTechnologies().contains("wifi");
   m_wifiEnabled = m_networkListModel->enabledTechnologies().contains("wifi");
+
   m_layout->addItem(m_list);
   showListOrLabel();
 
   startScanning();
+
   connect(m_filter, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
 	  this, SLOT(onRowsRemoved()));
 
   connect(m_filter, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
 	  this, SLOT(onRowsInserted()));
 
-  connect(m_networkListModel, SIGNAL(technologiesChanged(const QStringList &,const QStringList &, const QStringList &)),
-	  this, SLOT(onTechnologiesChanged(const QStringList &,const QStringList &, const QStringList &)));
+  connect(m_networkListModel, SIGNAL(technologiesChanged(const QStringList &,const QStringList &, const QStringList &, const QString &)),
+	  this, SLOT(onTechnologiesChanged(const QStringList &,const QStringList &, const QStringList &, const QString &)));
+
+  connect(m_networkListModel, SIGNAL(statusChangeTrigger(bool)), this, SLOT(onStatusChangeTrigger(bool)));
 
   connect(m_wifiSwitch, SIGNAL(toggled(bool)),
 	  this, SLOT(onWifiToggled(bool)));
+
   connect(this, SIGNAL(visibleChanged()),
 	  this, SLOT(onVisibleChanged()));
+
   singleShot();
+}
+
+void ListWidget::onStatusChangeTrigger(bool on)
+{
+  if (on) {
+    //% "WIFI STATUS - processing request..."
+    m_wifiLabel->setText(qtTrId("qtn_wifi_label_processing"));
+  }
+  else {
+    m_wifiLabel->setText(qtTrId("qtn_wifi_label"));
+  }
 }
 
 void ListWidget::timerEvent(QTimerEvent *event)
@@ -142,23 +165,21 @@ void ListWidget::timerEvent(QTimerEvent *event)
 
 void ListWidget::startScanning(const int seconds)
 {
-  if (seconds != m_secondsBetweenScans) {
-    stopScanning();
-    m_secondsBetweenScans = seconds;
-  }
+  Q_UNUSED(seconds);
+  // If periodic scanning is NOT already ongoing, we start it,
+  // otherwise we just let it continue as is
   if (!m_timerId) {
-    MDEBUG("started scanning");
-    m_timerId= startTimer(m_secondsBetweenScans*1000);
-  } else {
-    MDEBUG("not starting because scan is already in progress");
+    m_timerId = startTimer(m_secondsBetweenScans*1000);
   }
 }
 
 void ListWidget::stopScanning(void)
 {
   MDEBUG("stopped scanning");
-  killTimer(m_timerId);
-  m_timerId = 0;
+  if (m_timerId) {
+    killTimer(m_timerId);
+    m_timerId = 0;
+  }
 }
 
 void ListWidget::addNetworkClicked(void)
@@ -185,17 +206,14 @@ void ListWidget::onRowsInserted()
   //Q_ASSERT(m_wifiAvailable);
 
   m_noWifiInRange = false;
-  startScanning();
   showListOrLabel();
 }
 
+// This is called both when the user toggles
+// the on/off button and when it is toggled based
+// on a technologiesChanged signal from ConnMan
 void ListWidget::onWifiToggled(bool checked)
 {
-  if (checked) {
-    m_wifiEnabled = true;
-    m_wifiAvailable = true;
-    m_noWifiInRange = true;
-  }
   showListOrLabel();
 }
 
@@ -206,41 +224,27 @@ void ListWidget::showListOrLabel()
   Q_ASSERT(m_turnOnWifiLabel);
   Q_ASSERT(m_noNetworksLabel);
 
+  // First clear the whole display
 
-  bool notAvailable = false;
-  bool turnOnWifi = false;
-  bool noNetworks = false;
-  bool list = false;
+  removeLayoutItem(m_wifiNotAvailableLabel, true);
+  removeLayoutItem(m_turnOnWifiLabel, true);
+  removeLayoutItem(m_noNetworksLabel, true);
+  removeLayoutItem(m_list, true);
 
-  MDEBUG("available %d enabled: %d nonInRange: %d",
-	 m_wifiAvailable, m_wifiEnabled, m_noWifiInRange);
+  // Then add the right layout item depending on the situation
+
   if (!m_wifiAvailable) {
-    notAvailable= true;
-  } else if (!m_wifiEnabled) {
-    turnOnWifi = true;
-  } else if (m_noWifiInRange) {
-    noNetworks = true;
-  } else {
-    list = true;
-    MDEBUG("there are %d rows in the list", m_filter->rowCount());
+    addLayoutItem(m_wifiNotAvailableLabel, true);
   }
-
-  MDEBUG("notAvailable %d, turnOnWifi %d, , noNetworks %d, list %d",
-	 notAvailable, turnOnWifi, noNetworks, list);
-  removeLayoutItem(m_wifiNotAvailableLabel, !notAvailable);
-  removeLayoutItem(m_turnOnWifiLabel, !turnOnWifi);
-  removeLayoutItem(m_noNetworksLabel, !noNetworks);
-  removeLayoutItem(m_list, !list);
-
-  Q_ASSERT(m_wifiNotAvailableLabel);
-  Q_ASSERT(m_turnOnWifiLabel);
-  Q_ASSERT(m_noNetworksLabel);
-  Q_ASSERT(m_list);
-
-  addLayoutItem(m_wifiNotAvailableLabel, notAvailable);
-  addLayoutItem(m_turnOnWifiLabel, turnOnWifi);
-  addLayoutItem(m_noNetworksLabel, noNetworks);
-  addLayoutItem(m_list, list);
+  else if (!m_wifiEnabled) {
+    addLayoutItem(m_turnOnWifiLabel, true);
+  }
+  else if (m_noWifiInRange) {
+    addLayoutItem(m_noNetworksLabel, true);
+  }
+  else {
+    addLayoutItem(m_list, true);
+  }
 }
 
 void ListWidget::removeLayoutItem(QGraphicsWidget* thing, const bool remove)
@@ -266,20 +270,29 @@ void ListWidget::addLayoutItem(QGraphicsWidget* thing, const bool add)
 }
 
 void ListWidget::onTechnologiesChanged(const QStringList &availableTechnologies,
-			     const QStringList &enabledTechnologies,
-			     const QStringList &connectedTechnologies)
+				       const QStringList &enabledTechnologies,
+				       const QStringList &connectedTechnologies,
+				       const QString &whatChanged)
 {
   Q_UNUSED(availableTechnologies);
   Q_UNUSED(connectedTechnologies);
+  Q_UNUSED(whatChanged);
+
   Q_ASSERT(m_networkListModel);
 
   m_wifiEnabled = enabledTechnologies.contains("wifi");
   m_wifiAvailable = availableTechnologies.contains("wifi");
 
-  if (m_wifiEnabled) {
-    startScanning(5);
+  // Keep scanning on only when WiFi is enabled (a part of an effort to avoid
+  // problems/crashes on the ConnMan side)
+  if (whatChanged == EnabledTechnologies || whatChanged == AllTechnologies) {
+    if (m_wifiEnabled) {
+      startScanning();
+    }
+    else {
+      stopScanning();
+    }
   }
-
   showListOrLabel();
 }
 
