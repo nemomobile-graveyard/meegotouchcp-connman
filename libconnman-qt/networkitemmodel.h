@@ -91,6 +91,7 @@ class NetworkItemModel : public MWidgetModel
   /* property setters */
   //These actually set the property on the underlying service object.
   void setPassphrase(const QString &passphrase);
+  void clearPassphrase();
   void setIpv4(const IPv4Type &ipv4);
   void setNameservers(const QStringList &nameservers);
 
@@ -153,7 +154,7 @@ private slots:
   void getPropertiesReply(QDBusPendingCallWatcher *call);
   void propertyChanged(const QString &name,
 		       const QDBusVariant &value);
-
+  void onMemberModified(const QList<const char *> &members);
   //These are all due to MBC#1070
   void setPropertyFinished(QDBusPendingCallWatcher *call);
   void disconnectFinished(QDBusPendingCallWatcher *call);

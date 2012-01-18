@@ -58,6 +58,12 @@ NetworkItemModel::NetworkItemModel(const QString &path, QObject *parent) :
 	    SLOT(getPropertiesReply(QDBusPendingCallWatcher*)));
   }
 
+  // To clear passphrase on failed connection attempts
+  connect(this,
+          SIGNAL(modified(const QList<const char *>)),
+          this,
+          SLOT(onMemberModified(const QList<const char *>)));
+
   //this is an attempt to avoid having lots of networks show in the
   //list with no type.  The thought process is that the filter is
   //matching on empty strings.  It doesn't appear to work in the
@@ -224,6 +230,25 @@ void NetworkItemModel::setPassphrase(const QString &passphrase)
     throw -1; //FIXME: don't throw
   }
   _setPassphrase(passphrase);
+}
+
+void NetworkItemModel::clearPassphrase()
+{
+  Q_ASSERT(m_service);
+  if (passphrase() == "") {
+    MDEBUG("clearPassphrase, passphrase already empty");  
+    return;
+  }
+  QDBusPendingReply<void> reply =
+    m_service->ClearProperty("Passphrase");
+  reply.waitForFinished();
+  if (reply.isError()) {
+    MDEBUG("ClearProperty(Passphrase) FAILED");
+  }
+  else {
+    MDEBUG("ClearProperty(Passphrase) OK, clearing local passphrase too");
+    _setPassphrase("");
+  }
 }
 
 void NetworkItemModel::setIpv4(const IPv4Type &ipv4)
@@ -466,6 +491,24 @@ void NetworkItemModel::propertyChanged(const QString &name,
     }
 }
 
+void NetworkItemModel::onMemberModified(const QList<const char *> &members)
+{
+  MDEBUG("onMemberModified");
+  QString s;
+  foreach(s, members)
+  {
+    // If state has changed into failure, clear the passphrase from ConnMan    
+    // (to make it so that it is asked again in the next connection attempt)      
+    if (s == State) {
+      MDEBUG("State has changed");
+      if (state() == STATE_FAILURE) {
+	MDEBUG("State has changed into failure");
+	clearPassphrase();
+      }
+      break;
+    }
+  }
+}
 
 void NetworkItemModel::timerEvent(QTimerEvent *event)
 {
