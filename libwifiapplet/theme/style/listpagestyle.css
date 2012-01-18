@@ -9,8 +9,10 @@
 	padding-left: 0;
 
     minimum-size: 100% 100%;
+/* Commented out as a fix to BMC#21317
     maximum-size: 100% 100%;
     preferred-size: 100% 100%;
+*/
 }
 
 ListWidget MWidgetStyle#buttonRow {
@@ -20,6 +22,7 @@ ListWidget MWidgetStyle#buttonRow {
     margin-bottom: 0;
     padding-top: 1mm;
     padding-bottom: 1mm;
+    padding-right: 2.5mm;
     background-image: "device-settings-header-bg" 0 0 3 6;
     background-opacity: 1.0;
 
