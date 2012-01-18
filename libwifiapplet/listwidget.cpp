@@ -19,9 +19,12 @@
 #include <QSortFilterProxyModel>
 #include <MApplicationPage>
 #include <QTimer>
+#include <mwidgetcreator.h>
+
+M_REGISTER_WIDGET_NO_CREATE(ListWidget);
 
 ListWidget::ListWidget(QGraphicsWidget *parent) :
-  DcpWidget(parent),
+  DcpStylableWidget(parent),
   m_wifiLabel(NULL),
   m_wifiSwitch(NULL), m_list(NULL),
   m_filter(NULL), m_buttonRow(NULL),
@@ -61,7 +64,7 @@ bool ListWidget::pagePans() const
 bool ListWidget::back()
 {
   stopScanning();
-  return DcpWidget::back(); //for now
+  return DcpStylableWidget::back(); //for now
 }
 
 void ListWidget::createContent()

@@ -12,6 +12,7 @@
 
 #include <DcpAppletIf>
 #include <QObject>
+class DcpStylableWidget;
 
 class WifiApplet: public QObject, public DcpAppletIf
 {
@@ -20,7 +21,7 @@ class WifiApplet: public QObject, public DcpAppletIf
 
 public:
   virtual void init();
-  virtual DcpWidget* constructWidget(int widgetId);
+  virtual DcpStylableWidget* constructStylableWidget(int widgetId);
   virtual QVector<MAction *> viewMenuItems();
   virtual QString title() const;
   virtual DcpBrief* constructBrief(int);

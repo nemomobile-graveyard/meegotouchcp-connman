@@ -20,9 +20,9 @@ void WifiApplet::init()
 {
 }
 
-DcpWidget* WifiApplet::constructWidget(int widgetId)
+DcpStylableWidget* WifiApplet::constructStylableWidget(int widgetId)
 {
-  DcpWidget *widget = NULL;
+  DcpStylableWidget *widget = NULL;
 
   switch (widgetId) {
   case 0:

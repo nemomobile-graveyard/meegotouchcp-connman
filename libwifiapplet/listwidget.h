@@ -11,7 +11,7 @@
 #define LISTWIDGET_H
 
 #include "technologybutton.h"
-#include <DcpWidget>
+#include <DcpStylableWidget>
 #include <MLabel>
 #include <MList>
 #include <QStringList>
@@ -22,7 +22,7 @@
 #include <QGraphicsLinearLayout>
 #include <MAction>
 
-class ListWidget : public DcpWidget
+class ListWidget : public DcpStylableWidget
 {
   Q_OBJECT;
 
