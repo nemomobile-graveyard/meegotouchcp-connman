@@ -2,6 +2,7 @@
 
 include (common.pri)
 TEMPLATE = subdirs
+CONFIG += ordered
 SUBDIRS += libconnman-qt libwifiapplet translations
 
 #FIXME: should not hardcode
