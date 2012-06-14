@@ -1,0 +1,23 @@
+[Desktop Entry]
+Type=ControlPanelApplet
+Name=Wifi
+X-logical-id=qml_wifi_applet
+X-translation-catalog=
+Icon=
+
+X-Maemo-Service=com.nokia.DuiControlPanel
+X-Maemo-Method=com.nokia.DuiControlPanelIf.appletPage
+X-Maemo-Object-Path=/
+X-Maemo-Fixed-Args=Wifi
+
+[DUI]
+X-DUIApplet-Applet=libqml.so
+
+[DCP]
+Category=Connections
+Order=4
+Text=configure WiFi connections
+
+Part=/usr/share/duicontrolpanel/wifi/mainpage.qml
+
+#ForceInProcessBrief=1
