@@ -15,6 +15,7 @@ URL:        http://www.meego.com
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  meegotouchcp-connman.yaml
 Requires:   connman-qt-declarative
+BuildRequires:  qt-qmake
 
 
 %description
@@ -35,6 +36,7 @@ export PATH=$PATH:/usr/lib/qt4/bin
 qmake install_prefix=/usr
 # << build pre
 
+%qmake 
 
 make %{?jobs:-j%jobs}
 
@@ -45,7 +47,7 @@ rm -rf %{buildroot}
 # >> install pre
 export INSTALL_ROOT=%{buildroot}
 # << install pre
-%make_install
+%qmake_install
 
 # >> install post
 # << install post
@@ -57,7 +59,7 @@ export INSTALL_ROOT=%{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/duicontrolpanel/meegotouchcp-connman.desktop
+%{_libdir}/duicontrolpanel/meegotouchcp-wifi.desktop
 %{_datadir}/duicontrolpanel/wifi/mainpage.qml
 %{_libdir}/qt4/imports/Connman/js/mustache.js
 # >> files
