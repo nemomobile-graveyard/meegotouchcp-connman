@@ -1,14 +1,12 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 import MeeGo.Connman 0.2
+import com.nokia.controlpanel 0.1
 import "/usr/lib/qt4/imports/Connman/js/mustache.js" as M
 
-PageStack {
-    id: wifiPageStack
-    anchors { fill: parent }
-    Component.onCompleted: {
-        wifiPageStack.push(initialPage)
-    }
+PageStackWindow {
+    id: mainWindow
+    initialPage: mainPage
 
     function handleInput(input) {
         console.log("About to handle input "+ input);
@@ -16,14 +14,14 @@ PageStack {
             console.log(key + "-> " + input[key]);
         }
         networkingModel.sendUserReply(input);
-        wifiPageStack.pop()
+        pageStack.pop()
         scanTimer.running = true;
     }
 
     Timer {
         id: scanTimer
         interval: 25000
-        running: false
+        running: networkingModel.wifiPowered
         repeat: true
         triggeredOnStart: true
         onTriggered: networkingModel.requestScan();
@@ -35,41 +33,68 @@ PageStack {
             import QtQuick 1.1
             import com.nokia.meego 1.0
             Item {
+                function updateState() {
+                    var isEnabled = false;
+                    for (var key in field_values) {
+                        isEnabled = isEnabled || (field_values[key].length > 0);
+                    }
+                    doneButton.enabled = isEnabled;
+                }
                 id: form
                 signal send (variant input)
-                anchors { fill: parent }
+                property variant field_values: {}
+                anchors { fill: parent; margins: 10 }
                 Column {
+                    spacing: 5
                     anchors { fill: parent }
                     {{#fields}}
                     Text {
-                        text: '{{name}} ({{type}} {{requirement}})'
+                        text: '{{name}}'
+                        color: 'white'
+                        font.pointSize: 14
                     }
                     TextField {
                         id: {{id}}
+                        anchors { left: parent.left; right: parent.right }
                         placeholderText: 'enter {{name}}'
+                        onTextChanged: {
+                            var dict = form.field_values;
+                            dict['{{id}}'] = {{id}}.text;
+                            form.field_values = dict;
+                            form.updateState();
+                        }
                     }
                     {{/fields}}
-                    Button {
-                        text: 'Connect'
-                        onClicked: {
-                            console.log('clicked Connect');
-                            var inputs = {};
-                            {{#fields}}
-                            if ({{id}}.text) {
-                                inputs['{{name}}'] = {{id}}.text;
-                            }
-                            {{/fields}}
-                            form.send.connect(handleInput); form.send(inputs);
+                }
+                Button {
+                    id: doneButton
+                    y: -203
+                    x: 299
+                    text: 'Done'
+                    width: 150
+                    enabled: false
+                    platformStyle: ButtonStyle {
+                        background: 'image://theme/meegotouch-button'+__invertedString+'-background-selected'+(position?'-'+position:'')
+                    }
+                    onClicked: {
+                        console.log('clicked Connect ' + 'x:' + x + ' y:' + y);
+                        var inputs = {};
+                        {{#fields}}
+                        if ({{id}}.text) {
+                            inputs['{{name}}'] = {{id}}.text;
                         }
+                        {{/fields}}
+                        form.send.connect(handleInput); form.send(inputs);
                     }
                 }
             }
         "
+
         onTechnologiesChanged: {
             wifiSwitch.checked = networkingModel.wifiPowered;
-            wifiPageStack.replace(mainPage);
             scanTimer.running = networkingModel.wifiPowered;
         }
+
         onWifiPoweredChanged: {
             wifiSwitch.checked = networkingModel.wifiPowered;
             scanTimer.running = networkingModel.wifiPowered;
@@ -97,17 +122,7 @@ PageStack {
             var output = M.Mustache.render(form_tpl, view);
             console.log("output:" + output);
             var form = Qt.createQmlObject(output, dynFields, "dynamicForm1");
-            wifiPageStack.push(networkPage);
-        }
-    }
-
-    Page {
-        id: initialPage
-
-        Text {
-            text: "Hello world"
-            color: "red"
-            font.pointSize: 24
+            pageStack.push(networkPage);
         }
     }
 
@@ -115,22 +130,72 @@ PageStack {
         id: networkRow
 
         Rectangle {
-            height: 40
-            color: "yellow"
+            height: 80
+            color: "black"
             anchors { left: parent.left; right: parent.right }
 
-            Text {
-                anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 20 }
-                text: modelData.name
+            Row {
+
+                Image {
+                    source: {
+                        var strength = modelData.strength;
+                        var str_id = 0;
+
+                        if (strength >= 59) {
+                            str_id = 5;
+                        } else if (strength >= 55) {
+                            str_id = 4;
+                        } else if (strength >= 50) {
+                            str_id = 3;
+                        } else if (strength >= 45) {
+                            str_id = 2;
+                        } else if (strength >= 30) {
+                            str_id = 1;
+                        }
+                        return "image://theme/icon-m-common-wlan-strength" + str_id;
+                    }
+                    width: 60
+                    height: 60
+                }
+
+                Column {
+                    Text {
+                        anchors { left: parent.left; leftMargin: 20 }
+                        text: modelData.name ? modelData.name : "hidden network"
+                        color: "white"
+                        font.pointSize: 18
+                    }
+                    Text {
+                        anchors { left: parent.left; leftMargin: 20 }
+                        text: {
+                            var state = modelData.state;
+                            var security = modelData.security[0];
+
+                            if ((state == "online") || (state == "ready")) {
+                                return "connected";
+                            } else if (state == "association" || state == "configuration") {
+                                return "connecting...";
+                            } else {
+                                if (security == "none") {
+                                    return "open";
+                                } else {
+                                    return "secure";
+                                }
+                            }
+                        }
+                        color: {
+                            var state = modelData.state;
+                            if (state == "online" || state == "ready") {
+                                return "gold";
+                            } else {
+                                return "white";
+                            }
+                        }
+                        font.pointSize: 14
+                    }
+                }
             }
-            Text {
-                anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-                text: modelData.favorite ? modelData.state + " (favorite)" : modelData.state
-            }
-            Text {
-                anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 40 }
-                text: modelData.security.join() + " " + modelData.strength
-            }
+
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -144,19 +209,20 @@ PageStack {
 
     Page {
         id: mainPage
+        tools: DcpToolBar {}
 
         Column {
             spacing: 10
             anchors { fill: parent }
             Rectangle {
-                color: "green"
                 anchors { left: parent.left; right: parent.right }
-                height: 60
+                height: 80
+                color: "black"
                 Text {
                     anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 20 }
-                    text: "WiFi status"
+                    text: "Wi-Fi networks"
                     color: "white"
-                    font.pointSize: 16
+                    font.pointSize: 18
                 }
                 Switch {
                     id: wifiSwitch
@@ -167,6 +233,7 @@ PageStack {
                     }
                 }
             }
+
             ListView {
                 anchors { left: parent.left; right: parent.right }
                 clip: true
@@ -185,28 +252,58 @@ PageStack {
             spacing: 10
             anchors { fill: parent }
             Rectangle {
-                color: "green"
+                color: "black"
+                anchors { left: parent.left; right: parent.right }
+                height: 5
+            }
+            Rectangle {
+                color: "#222222"
+                anchors { left: parent.left; right: parent.right }
+                height: 1
+            }
+            Rectangle {
+                color: "black"
                 anchors { left: parent.left; right: parent.right }
                 height: 60
-
-                Text {
-                    anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 20 }
-                    text: "Wireless Network Details"
-                    color: "white"
-                    font.pointSize: 16
+                Button {
+                    anchors {
+                        left: parent.left;
+                        leftMargin: 20
+                        verticalCenter: parent.verticalCenter
+                    }
+                    text: "Cancel"
+                    width: 150
+                    onClicked: {
+                        mainWindow.handleInput({});
+                    }
                 }
             }
+            Rectangle {
+                color: "#333333"
+                anchors { left: parent.left; right: parent.right }
+                height: 1
+            }
             Text {
-                text: "Network:"
-                color: "green"
+                anchors { left: parent.left; leftMargin: 10 }
+                text: "Sign in to secure Wi-Fi network"
+                color: "white"
+                font.pointSize: 18
             }
             Text {
                 id: networkName
-                color: "green"
+                anchors { left: parent.left; leftMargin: 10 }
+                color: "white"
+                font.pointSize: 18
+            }
+            Rectangle {
+                color: "black"
+                anchors { left: parent.left; right: parent.right }
+                height: 30
             }
             Rectangle {
                 anchors { left: parent.left; right: parent.right }
                 height: 200
+                color: "black"
                 id: dynFields
             }
         }
