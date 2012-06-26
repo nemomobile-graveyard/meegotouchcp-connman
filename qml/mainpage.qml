@@ -7,15 +7,19 @@ import "/usr/lib/qt4/imports/Connman/js/mustache.js" as M
 PageStackWindow {
     id: mainWindow
     initialPage: mainPage
+    property variant netfields: {}
 
-    function handleInput(input) {
-        console.log("About to handle input "+ input);
-        for (var key in input) {
-            console.log(key + "-> " + input[key]);
+    function handleInput(key, value) {
+        var dict = mainWindow.netfields;
+        var isDoneEnabled = false;
+        console.log("Received from TextField " + key + " " + value);
+        dict[key] = value;
+        mainWindow.netfields = dict;
+        for (var id in mainWindow.netfields) {
+            console.log(id + "-> " + mainWindow.netfields[id]);
+            isDoneEnabled = isDoneEnabled || mainWindow.netfields[id].length;
         }
-        networkingModel.sendUserReply(input);
-        pageStack.pop()
-        scanTimer.running = true;
+        doneButton.enabled = isDoneEnabled;
     }
 
     Timer {
@@ -33,16 +37,7 @@ PageStackWindow {
             import QtQuick 1.1
             import com.nokia.meego 1.0
             Item {
-                function updateState() {
-                    var isEnabled = false;
-                    for (var key in field_values) {
-                        isEnabled = isEnabled || (field_values[key].length > 0);
-                    }
-                    doneButton.enabled = isEnabled;
-                }
                 id: form
-                signal send (variant input)
-                property variant field_values: {}
                 anchors { fill: parent; margins: 10 }
                 Column {
                     spacing: 5
@@ -55,37 +50,18 @@ PageStackWindow {
                     }
                     TextField {
                         id: {{id}}
+                        signal send (string key, string value)
                         anchors { left: parent.left; right: parent.right }
                         placeholderText: 'enter {{name}}'
+                        Component.onCompleted: {
+                            {{id}}.send.connect(handleInput);
+                        }
                         onTextChanged: {
-                            var dict = form.field_values;
-                            dict['{{id}}'] = {{id}}.text;
-                            form.field_values = dict;
-                            form.updateState();
+                            console.log('Sending from TextField {{id}}' + {{id}}.text);
+                            {{id}}.send('{{name}}', {{id}}.text);
                         }
                     }
                     {{/fields}}
-                }
-                Button {
-                    id: doneButton
-                    y: -203
-                    x: 299
-                    text: 'Done'
-                    width: 150
-                    enabled: false
-                    platformStyle: ButtonStyle {
-                        background: 'image://theme/meegotouch-button'+__invertedString+'-background-selected'+(position?'-'+position:'')
-                    }
-                    onClicked: {
-                        console.log('clicked Connect ' + 'x:' + x + ' y:' + y);
-                        var inputs = {};
-                        {{#fields}}
-                        if ({{id}}.text) {
-                            inputs['{{name}}'] = {{id}}.text;
-                        }
-                        {{/fields}}
-                        form.send.connect(handleInput); form.send(inputs);
-                    }
                 }
             }
         "
@@ -122,7 +98,14 @@ PageStackWindow {
             var output = M.Mustache.render(form_tpl, view);
             console.log("output:" + output);
             var form = Qt.createQmlObject(output, dynFields, "dynamicForm1");
-            pageStack.push(networkPage);
+            if (pageStack.currentPage == networkPage) {
+                console.log("Warning: already on networkPage");
+            }
+            if (pageStack.busy) {
+                console.log("TODO: handle wrong input!!!");
+            } else {
+                pageStack.push(networkPage);
+            }
         }
     }
 
@@ -274,7 +257,33 @@ PageStackWindow {
                     text: "Cancel"
                     width: 150
                     onClicked: {
-                        mainWindow.handleInput({});
+                        networkingModel.sendUserReply({});
+                        pageStack.pop()
+                        scanTimer.running = true;
+                    }
+                }
+                Button {
+                    id: doneButton
+                    anchors {
+                        right: parent.right;
+                        rightMargin: 20
+                        verticalCenter: parent.verticalCenter
+                    }
+                    text: 'Done'
+                    width: 150
+                    enabled: false
+                    platformStyle: ButtonStyle {
+                        background: 'image://theme/meegotouch-button'+__invertedString+'-background-selected'+(position?'-'+position:'')
+                    }
+                    onClicked: {
+                        console.log('clicked Done ' + 'x:' + x + ' y:' + y);
+                        var fields = mainWindow.netfields;
+                        for (var key in fields) {
+                            console.log(key + " --> " + fields[key]);
+                        }
+                        pageStack.pop()
+                        scanTimer.running = true;
+                        networkingModel.sendUserReply(fields);
                     }
                 }
             }
