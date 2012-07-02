@@ -183,8 +183,15 @@ PageStackWindow {
                 anchors.fill: parent
                 onClicked: {
                     console.log("clicked " + modelData.name);
-                    modelData.requestConnect();
-                    networkName.text = modelData.name;
+                    if (modelData.state == "idle" || modelData.state == "failure") {
+                        modelData.requestConnect();
+                        networkName.text = modelData.name;
+                    } else {
+                        console.log("Show network status page");
+                        networkStatusPage.networkLabel = modelData.name;
+                        networkStatusPage.network = modelData;
+                        pageStack.push(networkStatusPage);
+                    }
                 }
             }
         }
@@ -317,4 +324,9 @@ PageStackWindow {
             }
         }
     }
+
+    StatusPage {
+        id: networkStatusPage
+    }
+
 }
