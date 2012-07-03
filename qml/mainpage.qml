@@ -188,6 +188,9 @@ PageStackWindow {
                         networkName.text = modelData.name;
                     } else {
                         console.log("Show network status page");
+                        for (var key in modelData.ipv4) {
+                            console.log(key + " -> " + modelData.ipv4[key]);
+                        }
                         networkStatusPage.networkLabel = modelData.name;
                         networkStatusPage.network = modelData;
                         pageStack.push(networkStatusPage);
