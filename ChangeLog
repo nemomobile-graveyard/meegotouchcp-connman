@@ -1,3 +1,6 @@
+meegotouchcp-connman 0.2.2
+	handle wrong user's input
+
 meegotouchcp-connman 0.2.0
 	Rewritten to use QML
 
