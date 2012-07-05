@@ -107,6 +107,12 @@ PageStackWindow {
                 pageStack.push(networkPage);
             }
         }
+
+        onErrorReported: {
+            console.log("Got error from model: " + error);
+            mainpageNotificationBanner.text = "Incorrect value entered. Try again."
+            mainpageNotificationBanner.show()
+        }
     }
 
     Component {
@@ -330,6 +336,10 @@ PageStackWindow {
 
     StatusPage {
         id: networkStatusPage
+    }
+
+    NotificationBanner {
+        id: mainpageNotificationBanner
     }
 
 }
