@@ -7,6 +7,11 @@ import "/usr/lib/qt4/imports/Connman/js/mustache.js" as M
 PageStackWindow {
     id: mainWindow
     initialPage: mainPage
+
+    // this is a workaround for orientation bug triggered in case PageStackWindow
+    // is used as a top level component in CP plugin
+    rotation: screen.orientationString == 'Portrait' ? 90 : 0
+
     property variant netfields: {}
 
     function handleInput(key, value) {
