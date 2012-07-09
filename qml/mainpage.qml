@@ -115,7 +115,11 @@ PageStackWindow {
 
         onErrorReported: {
             console.log("Got error from model: " + error);
-            mainpageNotificationBanner.text = "Incorrect value entered. Try again."
+            if (error == "invalid-key") {
+                mainpageNotificationBanner.text = "Incorrect value entered. Try again."
+            } else {
+                mainpageNotificationBanner.text = "Connect failed"
+            }
             mainpageNotificationBanner.show()
         }
     }
