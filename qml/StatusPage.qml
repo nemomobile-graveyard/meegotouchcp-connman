@@ -67,7 +67,7 @@ Page {
                 ButtonRow {
                     id: method
                     anchors { left: parent.left; right: parent.right; top: parent.top; topMargin: 30; leftMargin: 10; rightMargin: 10 }
-                    state: statusPage.network.ipv4["Method"]
+                    state: statusPage.network ? statusPage.network.ipv4["Method"] : "manual"
 
                     states: [
                         State {
@@ -84,14 +84,14 @@ Page {
 
                     Button {
                         text: "DHCP"
-                        checked: statusPage.network.ipv4["Method"] == "dhcp"
+                        checked: statusPage.network ? statusPage.network.ipv4["Method"] == "dhcp" : false
                         onClicked: {
                             method.state = "dhcp"
                         }
                     }
                     Button {
                         text: "Static"
-                        checked: statusPage.network.ipv4["Method"] == "manual"
+                        checked: statusPage.network ? statusPage.network.ipv4["Method"] == "manual" : true
                         onClicked: {
                             method.state = "manual"
                         }
@@ -118,7 +118,7 @@ Page {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
-                            text: statusPage.network.ipv4["Address"]
+                            text: statusPage.network ? statusPage.network.ipv4["Address"] : ""
                             color: "white"
                             font.pointSize: 20
                         }
@@ -135,7 +135,7 @@ Page {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: statusPage.network.ipv4["Netmask"]
+                            text: statusPage.network ? statusPage.network.ipv4["Netmask"] : ""
                             color: "white"
                             font.pointSize: 20
                         }
@@ -152,7 +152,7 @@ Page {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: statusPage.network.ipv4["Gateway"]
+                            text: statusPage.network ? statusPage.network.ipv4["Gateway"] : ""
                             color: "white"
                             font.pointSize: 20
                         }
@@ -169,7 +169,7 @@ Page {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: statusPage.network.nameservers.join()
+                            text: statusPage.network ? statusPage.network.nameservers.join() : ""
                             color: "white"
                             font.pointSize: 20
                         }
@@ -186,7 +186,7 @@ Page {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: statusPage.network.domains.join()
+                            text: statusPage.network ? statusPage.network.domains.join() : ""
                             color: "white"
                             font.pointSize: 20
                         }
@@ -214,7 +214,7 @@ Page {
                         TextField {
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network.ipv4["Address"]
+                            text: statusPage.network ? statusPage.network.ipv4["Address"] : ""
                             font.pointSize: 20
                         }
                     }
@@ -231,7 +231,7 @@ Page {
                         TextField {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network.ipv4["Netmask"]
+                            text: statusPage.network ? statusPage.network.ipv4["Netmask"] : ""
                             font.pointSize: 20
                         }
                     }
@@ -248,7 +248,7 @@ Page {
                         TextField {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network.ipv4["Gateway"]
+                            text: statusPage.network ? statusPage.network.ipv4["Gateway"] : ""
                             font.pointSize: 20
                         }
                     }
@@ -265,7 +265,7 @@ Page {
                         TextField {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network.nameservers.join()
+                            text: statusPage.network ? statusPage.network.nameservers.join() : ""
                             font.pointSize: 20
                         }
                     }
@@ -282,7 +282,7 @@ Page {
                         TextField {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network.domains.join()
+                            text: statusPage.network ? statusPage.network.domains.join() : ""
                             font.pointSize: 20
                         }
                     }
