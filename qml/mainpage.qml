@@ -206,9 +206,12 @@ PageStackWindow {
                         for (var key in modelData.ipv4) {
                             console.log(key + " -> " + modelData.ipv4[key]);
                         }
-                        networkStatusPage.networkLabel = modelData.name;
-                        networkStatusPage.network = modelData;
-                        pageStack.push(networkStatusPage);
+                        settingsSheet.network = modelData;
+                        // TODO: move this block to SettingsSheet.qml
+                        settingsSheet.networkLabel = modelData.name;
+                        settingsSheet.proxyAutoUrlCheck = ! modelData.proxyConfig["URL"];
+
+                        settingsSheet.open();
                     }
                 }
             }
@@ -343,8 +346,8 @@ PageStackWindow {
         }
     }
 
-    StatusPage {
-        id: networkStatusPage
+    SettingsSheet {
+        id: settingsSheet
     }
 
     NotificationBanner {

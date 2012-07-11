@@ -3,23 +3,112 @@ import com.nokia.meego 1.0
 import com.nokia.controlpanel 0.1
 import MeeGo.Connman 0.2
 
-Page {
-    id: statusPage
-    tools: DcpToolBar {}
+Sheet {
+    id: sheet
+    acceptButtonText: "Done"
+    rejectButtonText: "Cancel"
 
-    property NetworkService network
+    onAccepted: {
+        var domains = [],
+            nameservers = [],
+            ipv4,
+            proxyconf,
+            proxy_server_text;
+
+        console.log("Accept");
+
+        // Domains
+        if (network.domains.join() !== domainsField.text) {
+            if (domainsField.text) {
+                domains = domainsField.text.split();
+            }
+            console.log("Update Domains: " + domains.join());
+            network.domainsConfig = domains;
+        }
+
+        // IPv4
+        ipv4 = network.ipv4;
+        if (ipv4["Method"] !==  method.state) {
+            ipv4["Method"] = method.state;
+            if (method.state === "manual") {
+                ipv4["Address"] = address.text
+                ipv4["Netmask"] = netmask.text
+                ipv4["Gateway"] = gateway.text
+            }
+            network.ipv4Config = ipv4;
+        } else if (network.ipv4["Method"] === "manual") {
+            if (ipv4["Address"] !== address.text ||
+                ipv4["Netmask"] !== netmask.text ||
+                ipv4["Gateway"] !== gateway.text) {
+
+                ipv4["Address"] = address.text
+                ipv4["Netmask"] = netmask.text
+                ipv4["Gateway"] = gateway.text
+                network.ipv4Config = ipv4;
+            }
+        }
+
+        // Nameservers
+        if (method.state === "manual" &&
+            network.nameserversConfig.join() !== nameserversField.text) {
+            nameservers = nameserversField.text.split();
+            network.nameserversConfig = nameservers;
+        }
+
+        // Proxy
+        proxyconf = network.proxyConfig;
+        if (proxyconf["Method"] !== proxy.state) {
+            proxyconf["Method"] = proxy.state;
+            if (proxy.state === "auto") {
+                proxyconf["URL"] = proxyurl.text;
+            } else if (proxy.state === "manual") {
+                proxyconf["Servers"] = [proxyserver.text + ":" + proxyport.text];
+            }
+            network.proxyConfig = proxyconf;
+        } else if (proxy.state === "manual") {
+            proxy_server_text = proxyserver.text + ":" + proxyport.text;
+            if (proxyconf["Servers"].length === 0 || proxyconf["Servers"][0] !== proxy_server_text) {
+                proxyconf["Servers"] = [proxy_server_text];
+                network.proxyConfig = proxyconf;
+            }
+        } else if (proxy.state == "auto") {
+            if (proxyAutoUrl.checked && proxyconf["URL"]) {
+                // empty URL to use the provided by DHCP
+                proxyconf["URL"] = "";
+                network.proxyConfig = proxyconf;
+            } else if (! proxyAutoUrl.checked && proxyurl.text !== proxyconf["URL"]) {
+                // manual URL is used and it needs update
+                proxyconf["URL"] = proxyurl.text;
+                network.proxyConfig = proxyconf;
+            }
+        }
+
+
+    }
+
+    property variant network
     property alias networkLabel: networkNameLabel.text
+    property alias proxyAutoUrlCheck: proxyAutoUrl.checked
 
-    Flickable {
-        anchors { fill: parent }
-        contentHeight: 1100
+    content: Flickable {
+        anchors.fill: parent
+        anchors.leftMargin: 10
+        anchors.topMargin: 10
+        //contentWidth: mainColumn.width
+        contentHeight: mainColumn.height
+        flickableDirection: Flickable.VerticalFlick
 
         Column {
+            id: mainColumn
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
             spacing: 10
-            anchors { fill: parent }
-            Item {
+
+            Rectangle {
                 anchors { left: parent.left; right: parent.right }
                 height: 80
+                color: "transparent"
 
                 Image {
                     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
@@ -37,9 +126,10 @@ Page {
                 }
             }
 
-            Item {
+            Rectangle {
                 anchors { left: parent.left; right: parent.right }
                 height: 100
+                color: "transparent"
                 Button {
                     id: disconnectButton
                     anchors {
@@ -50,7 +140,7 @@ Page {
                     onClicked: {
                         console.log("Disconnect clicked");
                         network.requestDisconnect();
-                        pageStack.pop();
+                        sheet.close();
                     }
                 }
             }
@@ -67,7 +157,7 @@ Page {
                 ButtonRow {
                     id: method
                     anchors { left: parent.left; right: parent.right; top: parent.top; topMargin: 30; leftMargin: 10; rightMargin: 10 }
-                    state: statusPage.network ? statusPage.network.ipv4["Method"] : "manual"
+                    state: sheet.network ? sheet.network.ipv4["Method"] : "manual"
 
                     states: [
                         State {
@@ -84,14 +174,14 @@ Page {
 
                     Button {
                         text: "DHCP"
-                        checked: statusPage.network ? statusPage.network.ipv4["Method"] == "dhcp" : false
+                        checked: sheet.network ? sheet.network.ipv4["Method"] == "dhcp" : false
                         onClicked: {
                             method.state = "dhcp"
                         }
                     }
                     Button {
                         text: "Static"
-                        checked: statusPage.network ? statusPage.network.ipv4["Method"] == "manual" : true
+                        checked: sheet.network ? sheet.network.ipv4["Method"] == "manual" : true
                         onClicked: {
                             method.state = "manual"
                         }
@@ -102,7 +192,7 @@ Page {
             Item {
                 id: networkInfo
                 anchors { left: parent.left; right: parent.right }
-                height: 440
+                height: 340
 
                 Column {
                     spacing: 50
@@ -118,7 +208,7 @@ Page {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
-                            text: statusPage.network ? statusPage.network.ipv4["Address"] : ""
+                            text: sheet.network ? sheet.network.ipv4["Address"] : ""
                             color: "white"
                             font.pointSize: 20
                         }
@@ -135,7 +225,7 @@ Page {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: statusPage.network ? statusPage.network.ipv4["Netmask"] : ""
+                            text: sheet.network ? sheet.network.ipv4["Netmask"] : ""
                             color: "white"
                             font.pointSize: 20
                         }
@@ -152,7 +242,7 @@ Page {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: statusPage.network ? statusPage.network.ipv4["Gateway"] : ""
+                            text: sheet.network ? sheet.network.ipv4["Gateway"] : ""
                             color: "white"
                             font.pointSize: 20
                         }
@@ -169,24 +259,7 @@ Page {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: statusPage.network ? statusPage.network.nameservers.join() : ""
-                            color: "white"
-                            font.pointSize: 20
-                        }
-                    }
-                    Item {
-                        height: 60
-                        anchors { left: parent.left; right: parent.right }
-
-                        Text {
-                            anchors { left: parent.left; leftMargin: 20; top: parent.top }
-                            text: "Search domains"
-                            color: "grey"
-                            font.pointSize: 14
-                        }
-                        Text {
-                            anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: statusPage.network ? statusPage.network.domains.join() : ""
+                            text: sheet.network ? sheet.network.nameservers.join() : ""
                             color: "white"
                             font.pointSize: 20
                         }
@@ -197,7 +270,7 @@ Page {
             Item {
                 id: networkFields
                 anchors { left: parent.left; right: parent.right }
-                height: 440
+                height: 360
 
                 Column {
                     spacing: 50
@@ -212,9 +285,10 @@ Page {
                             font.pointSize: 14
                         }
                         TextField {
+                            id: address
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network ? statusPage.network.ipv4["Address"] : ""
+                            text: sheet.network ? sheet.network.ipv4["Address"] : ""
                             font.pointSize: 20
                         }
                     }
@@ -229,9 +303,10 @@ Page {
                             font.pointSize: 14
                         }
                         TextField {
+                            id: netmask
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network ? statusPage.network.ipv4["Netmask"] : ""
+                            text: sheet.network ? sheet.network.ipv4["Netmask"] : ""
                             font.pointSize: 20
                         }
                     }
@@ -246,9 +321,10 @@ Page {
                             font.pointSize: 14
                         }
                         TextField {
+                            id: gateway
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network ? statusPage.network.ipv4["Gateway"] : ""
+                            text: sheet.network ? sheet.network.ipv4["Gateway"] : ""
                             font.pointSize: 20
                         }
                     }
@@ -263,29 +339,40 @@ Page {
                             font.pointSize: 14
                         }
                         TextField {
+                            id: nameserversField
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network ? statusPage.network.nameservers.join() : ""
+                            text: {
+                                var nservs = "";
+                                if (sheet.network) {
+                                    nservs = sheet.network.nameserversConfig.join();
+                                    return nservs ? nservs : sheet.network.nameservers.join();
+                                } else {
+                                    return "";
+                                }
+                            }
                             font.pointSize: 20
                         }
                     }
-                    Item {
-                        height: 60
-                        anchors { left: parent.left; right: parent.right }
+                }
+            }
 
-                        Text {
-                            anchors { left: parent.left; leftMargin: 20; top: parent.top }
-                            text: "Search domains"
-                            color: "grey"
-                            font.pointSize: 14
-                        }
-                        TextField {
-                            anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            width: 440
-                            text: statusPage.network ? statusPage.network.domains.join() : ""
-                            font.pointSize: 20
-                        }
-                    }
+            Item {
+                height: 100
+                anchors { left: parent.left; right: parent.right }
+
+                Text {
+                    anchors { left: parent.left; leftMargin: 20; top: parent.top }
+                    text: "Search domains"
+                    color: "grey"
+                    font.pointSize: 14
+                }
+                TextField {
+                    id: domainsField
+                    anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
+                    width: 440
+                    text: sheet.network ? sheet.network.domains.join() : ""
+                    font.pointSize: 20
                 }
             }
 
@@ -301,7 +388,7 @@ Page {
                 ButtonRow {
                     id: proxy
                     anchors { left: parent.left; right: parent.right; top: parent.top; topMargin: 30; leftMargin: 10; rightMargin: 10 }
-                    state: statusPage.network ? statusPage.network.proxy["Method"] : "auto"
+                    state: sheet.network ? sheet.network.proxy["Method"] : "auto"
 
                     states: [
                         State {
@@ -372,10 +459,12 @@ Page {
                             font.pointSize: 14
                         }
                         TextField {
+                            id: proxyserver
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
                             width: 440
-                            text: "this is Server"
+                            text: sheet.network && sheet.network.proxyConfig["Servers"] ? sheet.network.proxyConfig["Servers"][0].split(":")[0] : ""
                             font.pointSize: 20
+                            // TODO: validator
                         }
                     }
                     Item {
@@ -389,10 +478,12 @@ Page {
                             font.pointSize: 14
                         }
                         TextField {
+                            id: proxyport
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: "this is Port"
+                            text: sheet.network && sheet.network.proxyConfig["Servers"] ? sheet.network.proxyConfig["Servers"][0].split(":")[1] : ""
                             font.pointSize: 20
+                            // TODO: validator
                         }
                     }
                 }
@@ -405,8 +496,13 @@ Page {
 
                 Column {
                     spacing: 50
+                    CheckBox {
+                        id: proxyAutoUrl
+                        text: "Use URL provided by DHCP server"
+                    }
                     Item {
                         height: 40
+                        visible: !proxyAutoUrl.checked
                         anchors { left: parent.left; right: parent.right }
 
                         Text {
@@ -416,10 +512,19 @@ Page {
                             font.pointSize: 14
                         }
                         TextField {
+                            id: proxyurl
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
                             width: 440
-                            text: statusPage.network ? statusPage.network.proxy["URL"] : "Error!"
+                            readOnly: proxyAutoUrl.checked
+                            text: {
+                                if (sheet.network) {
+                                    return sheet.network.proxy["URL"] ? sheet.network.proxy["URL"] : "";
+                                } else {
+                                    return "Error!";
+                                }
+                            }
                             font.pointSize: 20
+                            // TODO: validator
                         }
                     }
                 }

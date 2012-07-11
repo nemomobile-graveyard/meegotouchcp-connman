@@ -5,7 +5,7 @@ desktop_entry.path = /usr/lib/duicontrolpanel
 desktop_entry.files = meegotouchcp-wifi.desktop
 
 qmlpages.path = /usr/share/duicontrolpanel/wifi
-qmlpages.files = mainpage.qml StatusPage.qml NotificationBanner.qml
+qmlpages.files = mainpage.qml SettingsSheet.qml NotificationBanner.qml
 
 mustache.path = /usr/lib/qt4/imports/Connman/js/
 mustache.files = mustache.js
