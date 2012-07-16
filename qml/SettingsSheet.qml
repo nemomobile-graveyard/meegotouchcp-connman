@@ -87,7 +87,6 @@ Sheet {
     }
 
     property QtObject network
-    property alias networkLabel: networkNameLabel.text
     property alias proxyAutoUrlCheck: proxyAutoUrl.checked
 
     content: Flickable {
@@ -118,9 +117,8 @@ Sheet {
                 }
 
                 Text {
-                    id: networkNameLabel
                     anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 80 }
-                    text: "Network name"
+                    text: sheet.network ? sheet.network.name : "Error"
                     color: "white"
                     font.pointSize: 18
                 }

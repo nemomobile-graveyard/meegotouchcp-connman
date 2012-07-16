@@ -207,8 +207,7 @@ PageStackWindow {
                             console.log(key + " -> " + modelData.ipv4[key]);
                         }
                         settingsSheet.network = modelData;
-                        // TODO: move this block to SettingsSheet.qml
-                        settingsSheet.networkLabel = modelData.name;
+                        // TODO: move this line to SettingsSheet.qml
                         settingsSheet.proxyAutoUrlCheck = ! modelData.proxyConfig["URL"];
 
                         settingsSheet.open();
