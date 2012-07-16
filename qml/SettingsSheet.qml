@@ -8,6 +8,12 @@ Sheet {
     acceptButtonText: "Done"
     rejectButtonText: "Cancel"
 
+    property QtObject network
+
+    onNetworkChanged: {
+        proxyAutoUrl.checked = ! network.proxyConfig["URL"];
+    }
+
     onAccepted: {
         var domains = [],
             nameservers = [],
@@ -85,9 +91,6 @@ Sheet {
 
 
     }
-
-    property QtObject network
-    property alias proxyAutoUrlCheck: proxyAutoUrl.checked
 
     content: Flickable {
         anchors.fill: parent
