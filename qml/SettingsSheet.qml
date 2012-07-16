@@ -12,6 +12,10 @@ Sheet {
 
     onNetworkChanged: {
         proxyAutoUrl.checked = ! network.proxyConfig["URL"];
+        form.networkName = network.name;
+        form.ipv4 = network.ipv4;
+        form.nameservers = network.nameservers;
+        form.domains = network.domains;
     }
 
     onAccepted: {
@@ -93,12 +97,18 @@ Sheet {
     }
 
     content: Flickable {
+        id: form
         anchors.fill: parent
         anchors.leftMargin: 10
         anchors.topMargin: 10
         //contentWidth: mainColumn.width
         contentHeight: mainColumn.height
         flickableDirection: Flickable.VerticalFlick
+
+        property string networkName: "Error"
+        property variant ipv4: {"Method": "manual", "Address": "", "Netmask": "", "Gateway": ""}
+        property variant nameservers: []
+        property variant domains: []
 
         Column {
             id: mainColumn
@@ -121,7 +131,7 @@ Sheet {
 
                 Text {
                     anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 80 }
-                    text: sheet.network ? sheet.network.name : "Error"
+                    text: form.networkName
                     color: "white"
                     font.pointSize: 18
                 }
@@ -158,7 +168,7 @@ Sheet {
                 ButtonRow {
                     id: method
                     anchors { left: parent.left; right: parent.right; top: parent.top; topMargin: 30; leftMargin: 10; rightMargin: 10 }
-                    state: sheet.network ? sheet.network.ipv4["Method"] : "manual"
+                    state: form.ipv4.Method
 
                     states: [
                         State {
@@ -175,14 +185,14 @@ Sheet {
 
                     Button {
                         text: "DHCP"
-                        checked: sheet.network ? sheet.network.ipv4["Method"] == "dhcp" : false
+                        checked: form.ipv4.Method == "dhcp"
                         onClicked: {
                             method.state = "dhcp"
                         }
                     }
                     Button {
                         text: "Static"
-                        checked: sheet.network ? sheet.network.ipv4["Method"] == "manual" : true
+                        checked: form.ipv4.Method == "manual"
                         onClicked: {
                             method.state = "manual"
                         }
@@ -209,7 +219,7 @@ Sheet {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
-                            text: sheet.network ? sheet.network.ipv4["Address"] : ""
+                            text: form.ipv4.Address
                             color: "white"
                             font.pointSize: 20
                         }
@@ -226,7 +236,7 @@ Sheet {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: sheet.network ? sheet.network.ipv4["Netmask"] : ""
+                            text: form.ipv4.Netmask
                             color: "white"
                             font.pointSize: 20
                         }
@@ -243,7 +253,7 @@ Sheet {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: sheet.network ? sheet.network.ipv4["Gateway"] : ""
+                            text: form.ipv4.Gateway
                             color: "white"
                             font.pointSize: 20
                         }
@@ -260,7 +270,7 @@ Sheet {
                         }
                         Text {
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                            text: sheet.network ? sheet.network.nameservers.join() : ""
+                            text: form.nameservers.join()
                             color: "white"
                             font.pointSize: 20
                         }
@@ -289,7 +299,7 @@ Sheet {
                             id: address
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
                             width: 440
-                            text: sheet.network ? sheet.network.ipv4["Address"] : ""
+                            text: form.ipv4.Address
                             font.pointSize: 20
                         }
                     }
@@ -307,7 +317,7 @@ Sheet {
                             id: netmask
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: sheet.network ? sheet.network.ipv4["Netmask"] : ""
+                            text: form.ipv4.Netmask
                             font.pointSize: 20
                         }
                     }
@@ -325,7 +335,7 @@ Sheet {
                             id: gateway
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: sheet.network ? sheet.network.ipv4["Gateway"] : ""
+                            text: form.ipv4.Gateway
                             font.pointSize: 20
                         }
                     }
@@ -347,7 +357,7 @@ Sheet {
                                 var nservs = "";
                                 if (sheet.network) {
                                     nservs = sheet.network.nameserversConfig.join();
-                                    return nservs ? nservs : sheet.network.nameservers.join();
+                                    return nservs ? nservs : form.nameservers.join();
                                 } else {
                                     return "";
                                 }
@@ -372,7 +382,7 @@ Sheet {
                     id: domainsField
                     anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                     width: 440
-                    text: sheet.network ? sheet.network.domains.join() : ""
+                    text: form.domains.join()
                     font.pointSize: 20
                 }
             }
