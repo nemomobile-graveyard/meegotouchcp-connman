@@ -86,7 +86,7 @@ Sheet {
 
     }
 
-    property variant network
+    property QtObject network
     property alias networkLabel: networkNameLabel.text
     property alias proxyAutoUrlCheck: proxyAutoUrl.checked
 
