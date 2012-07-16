@@ -16,6 +16,8 @@ Sheet {
         form.ipv4 = network.ipv4;
         form.nameservers = network.nameservers;
         form.domains = network.domains;
+        form.proxy = network.proxy;
+        form.proxyConfig = network.proxyConfig;
     }
 
     onAccepted: {
@@ -109,6 +111,8 @@ Sheet {
         property variant ipv4: {"Method": "manual", "Address": "", "Netmask": "", "Gateway": ""}
         property variant nameservers: []
         property variant domains: []
+        property variant proxy: {"Method": "auto", "URL": ""}
+        property variant proxyConfig: {"Servers": []}
 
         Column {
             id: mainColumn
@@ -399,7 +403,7 @@ Sheet {
                 ButtonRow {
                     id: proxy
                     anchors { left: parent.left; right: parent.right; top: parent.top; topMargin: 30; leftMargin: 10; rightMargin: 10 }
-                    state: sheet.network ? sheet.network.proxy["Method"] : "auto"
+                    state: form.proxy.Method
 
                     states: [
                         State {
@@ -473,7 +477,7 @@ Sheet {
                             id: proxyserver
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
                             width: 440
-                            text: sheet.network && sheet.network.proxyConfig["Servers"] ? sheet.network.proxyConfig["Servers"][0].split(":")[0] : ""
+                            text: form.proxyConfig.Servers ? form.proxyConfig.Servers[0].split(":")[0] : ""
                             font.pointSize: 20
                             // TODO: validator
                         }
@@ -492,7 +496,7 @@ Sheet {
                             id: proxyport
                             anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                             width: 440
-                            text: sheet.network && sheet.network.proxyConfig["Servers"] ? sheet.network.proxyConfig["Servers"][0].split(":")[1] : ""
+                            text: form.proxyConfig.Servers ? form.proxyConfig.Servers[0].split(":")[1] : ""
                             font.pointSize: 20
                             // TODO: validator
                         }
@@ -527,13 +531,7 @@ Sheet {
                             anchors { left: parent.left; leftMargin: 20; top:parent.top; topMargin: 30 }
                             width: 440
                             readOnly: proxyAutoUrl.checked
-                            text: {
-                                if (sheet.network) {
-                                    return sheet.network.proxy["URL"] ? sheet.network.proxy["URL"] : "";
-                                } else {
-                                    return "Error!";
-                                }
-                            }
+                            text: form.proxy.URL
                             font.pointSize: 20
                             // TODO: validator
                         }
