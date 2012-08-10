@@ -221,7 +221,19 @@ PageStackWindow {
         Column {
             spacing: 10
             anchors { fill: parent }
+
+            Text {
+                id: errorLabel
+                visible: !networkingModel.available
+                anchors { left: parent.left; right: parent.right; margins: 64 }
+                text: "connman unavailable"
+                color: "pink"
+                font.pointSize: 24
+            }
+
             Rectangle {
+                id: switchRect
+                enabled: networkingModel.available
                 anchors { left: parent.left; right: parent.right }
                 height: 80
                 color: "black"
@@ -242,6 +254,7 @@ PageStackWindow {
             }
 
             ListView {
+                enabled: networkingModel.available
                 anchors { left: parent.left; right: parent.right }
                 clip: true
                 height: 700
