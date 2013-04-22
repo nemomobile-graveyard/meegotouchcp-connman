@@ -13,11 +13,12 @@ Version:    0.2.4
 Release:    1
 Group:      System/GUI/Other
 License:    Apache License
-URL:        http://www.meego.com
+URL:        https://github.com/nemomobile/meegotouchcp-connman
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  meegotouchcp-connman.yaml
 Requires:   connman-qt-declarative >= 0.2.2
 BuildRequires:  qt-qmake
+BuildRequires:  qt4-default
 Obsoletes:   meegotouchcp-connman-branding-upsteam < 0.2.0
 Obsoletes:   meegotouchcp-connman-qt < 0.2.0
 
@@ -34,8 +35,6 @@ This is a plugin for meegotouch-controlpanel that does wifi
 
 %build
 # >> build pre
-export PATH=$PATH:/usr/lib/qt4/bin
-qmake install_prefix=/usr
 # << build pre
 
 %qmake 
@@ -48,7 +47,6 @@ make %{?jobs:-j%jobs}
 %install
 rm -rf %{buildroot}
 # >> install pre
-export INSTALL_ROOT=%{buildroot}
 # << install pre
 %qmake_install
 
