@@ -1,0 +1,166 @@
+* Thu Jan 10 2013 Marko Saukko <marko.saukko@jollamobile.com> - 0.2.4
+- Updated packaging.
+
+* Fri Aug 10 2012 Dmitry Rozhkov <dmitry.rozhkov@jollamobile.com> - 0.2.4
+- Applied patch from Kuisma Salonen. Fixes NEMO#226
+- Simplifications in QML
+
+* Wed Jul 11 2012 Dmitry Rozhkov <dmitry.rozhkov@jollamobile.com> - 0.2.3
+- Reimplement Advanced settings view as Sheet component.
+
+* Wed Jul 11 2012 Marko Saukko <marko.saukko@jollamobile.com> - 0.2.2
+- Obsolete old packages (-branding, -qt) to fix package update.
+
+* Thu Jul 05 2012 Dmitry Rozhkov <dmitry.rozhkov@jollamobile.com> - 0.2.2
+- Handle nicely user's wrong input.
+
+* Mon Jul 02 2012 Dmitry Rozhkov <dmitry.rojkov@gmail.com> - 0.2.1
+- Rewritten to use PageStackWindow and standard toolbar
+  components.
+
+* Thu Jun 28 2012 Marko Saukko <marko.saukko@gmail.com> - 0.2.0
+- Added 0001-Fix-connman-qt-import.patch to fix import issue.
+
+* Thu Jun 14 2012 Dmitry Rozhkov <dmitry.rojkov@gmail.com> - 0.2.0
+- Rewritten to use QML components
+
+* Wed Jan 18 2012 Marko Saukko <marko.saukko@cybercom.com> - 0.1.0
+- Fixes NEMO#82: wifi applet crashes on wrong password.
+- Applied all previous patches to git tree and made new release 0.1.0.
+
+* Thu Nov 24 2011 Marko Saukko <marko.saukko@cybercom.com> - 0.0.13
+- Renamed connman-qt to libmeegotouchcp-connman-qt so we don't conflict with the other connman-qt.
+- Added obsoletes meegotouchcp-connman-libconnman-qt for libmeegotouchcp-connman-qt.
+
+* Wed Oct 05 2011 Marko Saukko <marko.saukko@cybercom.com> - 0.0.13
+- Added patch to fix desktop file with latest controlpanel.
+  desktop-file-changes.patch and merged fix_category.patch to it.
+
+* Fri Sep 23 2011 Jari Palojärvi <jari.palojarvi@nokia.com> - 0.0.13
+- A new fix for BMC#14958 (in fix_wrong_passphrase_2.patch).
+  The previous fix could potentially clear the passphrase based on 
+  networking failures not directly linked to a connect attempt. In the
+  new fix, the clearing is only done in case of a failed connect attempt.
+
+* Mon Sep 05 2011 Jari Palojärvi <jari.palojarvi@nokia.com> - 0.0.13
+- Fix for BMC#17231 (password entry now happens via a sheet)
+- Related to BMC#14958, added a new "Clear password" context menu command 
+  to allow the user to manually clear a previously entered wrong password 
+  in case ConnMan does not indicate a connect failure for the network in 
+  question and the password does not get automatically cleared.
+
+* Wed Aug 31 2011 Jari Palojärvi <jari.palojarvi@nokia.com> - 0.0.13
+- Fixes for BMC#21317 (WiFi network list scrolling works properly again)
+  and BMC#22647 (WiFi ON/OFF button is no positioned a bit better)
+
+* Fri Aug 19 2011 Jari Palojärvi <jari.palojarvi@nokia.com> - 0.0.13
+- A fix for BMC#20078, and a part of fix for BMC#22690
+- While fixing BMC#20078 and testing the WiFi applet UI, encountered 
+  severe instability problems on ConnMan side related to different actions 
+  on the WiFi applet UI. Thus, ended up doing several changes to the way 
+  how WiFi applet uses ConnMan in order to prevent ConnMan from crashing. 
+  For example:
+  - Scanning is now enabled only when WiFi is enabled
+  - When WiFi is turned off, and there's a network connected, the 
+    connected network is first disconnected and WiFi disabled only after 
+    that (and a "safety timeout")
+  - When a network is connected and there's a network already connected,
+    the previously connected network is first disconnected and the new 
+    network connected only after that (and a "safety timeout")
+  - The WiFi ON/OFF button is hidden for the duration of the ON/OFF
+    request handling on ConnMan side (and a "safety timeout") to 
+    prevent the user from initiating the opposite action while the 
+    previous request is still being handled.
+  Also, in case of some operations that take now a bit more time than 
+  earlier, a progress text is now shown to the user.
+  NOTE. Event with these changes, ConnMan continued to have some
+  stability issues. Investigations of these resulted in a separate 
+  ConnMan patch (for ConnMan 0.69.9) related to bug BMC#22690. This UI 
+  patch and the ConnMan patch were tested together and seemed to provide
+  pretty good statibility of the combination at least in the UI related 
+  ConnMan usage.
+
+* Wed Jul 06 2011 Alexandr Ivanov <ext-alexandr.ivanov@nokia.com> - 0.0.13
+- BMC20095_Bluetooth_and_Wifi_applets_cause_conflict_when_loading_theme.patch
+  Fixed WiFi controlpanel applet style.
+
+* Wed Jun 22 2011 Alexandr Ivanov <ext-alexandr.ivanov@nokia.com> - 0.0.13
+- Updated BMC16392_Dialog_for_Wlan_password_entry_is_broken.patch
+  to fix BMC#18547 - Clipped text appears in Remove WiFi network dialog
+
+* Fri Jun 03 2011 Jari Palojärvi <jari.palojarvi@nokia.com> - 0.0.13
+- Added a patch (fix_advanced_settings_dialog.patch) to fix errors
+  related to saving WiFi settings to ConnMan (BMC#14483). As a part of 
+  this fix, changed the dialog to better reflect the way how ConnMan
+  handles IP and DNS related settings. Namely, ConnMan has two properties 
+  for both of these settings. The first property is for the configuration 
+  values (read-write) and the second property is for the "active" values 
+  (read-only). The dialog now shows both of these values separately and
+  naturally allows only the configuration values to be changed. The advanced
+  settings dialog can now also be opened regardless of the state of the 
+  connection.
+
+* Thu May 10 2011 Alexandr Ivanov <ext-alexandr.ivanov@nokia.com> - 0.0.13
+- Add BMC16392_Dialog_for_Wlan_password_entry_is_broken.patch (BMC#16392),
+  BMC16957_Turned_off_Wifi_page_view_contains_unreadable_text.patch (BMC#16957)
+  to fix text colors in applet's dialogs
+
+* Wed May 4 2011 Jari Palojärvi <jari.palojarvi@nokia.com> - 0.0.13
+- Changed the fix for BMC#14958 (in fix_wrong_passphrase.patch).
+  In the previous fix, results from connection attempts did not 
+  arrive in a robust manner. The new solution is based on observing 
+  the connection state changes. The passphrase is cleared from ConMann 
+  when the connection state changes to "failure".
+
+* Wed Apr 27 2011 Jari Palojärvi <jari.palojarvi@nokia.com> - 0.0.13
+- Fix for BMC#14958 (in fix_wrong_passphrase.patch).
+  The result of a connection attempt is now checked (earlier it was
+  not). If the connection attempt fails, the passphrase (that may
+  have been asked from the user) is now cleared from ConnMan. This
+  causes the passphrase prompt to reappear when a new connection 
+  attempt is made. 
+
+* Thu Apr 14 2011 Fathi Boudra <fathi.boudra@nokia.com> - 0.0.13
+- Add BMC14950_WLAN_networks_names_are_not_visible_in_Wifi_app.patch (BMC#14950)
+  to fix wrong installation paths for applet's style
+- Cleanup the packaging and use qmake builder
+
+* Tue Mar 29 2011 Janne Siren <janne.siren@nokia.com> - 0.0.13
+- Fix for BMC#11205 and BMC#14960
+
+* Wed Mar 02 2011 Arun Ravindran <ext-arun.1.ravindran@nokia.com> - 0.0.13
+- Added CONFIG+=ordered option to .pro file ensure building libconnman-qt 
+- before libwifiapplet
+
+* Tue Mar 01 2011 Arun Ravindran <ext-arun.1.ravindran@nokia.com> - 0.0.13
+- Fix issues in connman interface usage, BMC#11261
+
+* Fri Oct 08 2010  Kaitlin Rupert <kaitlin.rupert@intel.com> - 0.0.13
+- Fix patch statements in yaml file
+
+* Fri Oct 08 2010  Kaitlin Rupert <kaitlin.rupert@intel.com> - 0.0.13
+- setParent() is not longer needed with libmeegotouch 0.20.45
+
+* Wed Sep 29 2010 Michael Leibowitz <michael.leibowitz@intel.com> - 0.0.13
+- Added 0001-Fix-BMC-811-and-BMC-3397.patch
+  Fixed:
+  - BMC#811  - Click Failure network in WIFI network list crashes Settings
+  - BMC#3397 - Wifi applet always shows the same networks many times with high possibility
+
+* Thu Sep 23 2010 Michael Leibowitz <michael.leibowitz@intel.com> - 0.0.13
+- Fix for BMC#6074
+
+* Tue Sep 07 2010 Michael Leibowitz <michael.leibowitz@intel.com> - 0.0.12
+- Fix for BMC#6013
+- Fix for BMC#6287
+- remove non applicable fixme
+
+* Mon Aug 23 2010 Michael Leibowitz <michael.leibowitz@intel.com> - 0.0.11
+- buildfix.  unpackaged file offlinebutton.h
+
+* Mon Aug 23 2010 Michael Leibowitz <michael.leibowitz@intel.com> - 0.0.11
+- version bump.  Fixes BMC#5701
+
+* Fri Aug 13 2010 Kaitlin Rupert <kaitlin.rupert@intel.com> - 0.0.10
+- Replace qmake-qt4 with qmake
+

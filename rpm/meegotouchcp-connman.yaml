@@ -1,0 +1,27 @@
+Name: meegotouchcp-connman
+Summary: MeegoTouchControlPanel wifi Plugin
+Version: 0.2.4
+Release: 1
+Group: System/GUI/Other
+License: Apache License
+URL: http://www.meego.com
+Sources:
+    - "%{name}-%{version}.tar.bz2"
+Description: |
+    This is a plugin for meegotouch-controlpanel that does wifi
+PkgBR:
+    - qt-qmake
+Requires:
+    - connman-qt-declarative >= 0.2.2
+Obsoletes:
+    # These were removed from version 0.2.0 onwards.
+    - meegotouchcp-connman-branding-upsteam < 0.2.0
+    - meegotouchcp-connman-qt < 0.2.0
+Configure: none
+Builder: qmake
+Files:
+- "%{_libdir}/duicontrolpanel/meegotouchcp-wifi.desktop"
+- "%{_datadir}/duicontrolpanel/wifi/mainpage.qml"
+- "%{_datadir}/duicontrolpanel/wifi/NotificationBanner.qml"
+- "%{_datadir}/duicontrolpanel/wifi/SettingsSheet.qml"
+- "%{_libdir}/qt4/imports/Connman/js/mustache.js"
